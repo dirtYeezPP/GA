@@ -1,0 +1,22 @@
+[
+    {
+        "id": "id_1",
+        "color": "purple",
+        "goes with": "yellow, black"
+    },
+    {
+        "id": "id_2",
+        "color": "pink",
+        "goes with": "brown, green"
+    },
+    {
+        "id": "id_3",
+        "color": "blue",
+        "goes with": "yellow, orange"
+    },
+    {
+        "id": "16978a2417f401",
+        "color": "green",
+        "goes with": "unknown"
+    }
+]
