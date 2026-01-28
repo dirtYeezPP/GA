@@ -17,11 +17,24 @@ get('/cat/$id', function($id){
     echo "car with id: $id";  
 }); 
 
-post("/save", function(){
-    Res::json($_POST); 
+get("/cats", function(){
+    Res::debug(data::getData("cats")); 
 }); 
 
-get("/cats", function(){
-    $catBreed =  $_GET['breed'] ?? " ";
-    echo "cats like this: $catBreed , are pretty peak, right?"; //query string 
+get('/cats/$catBreed/$catName', function($catBreed, $catName){
+    //en associative array 
+    $cat = [
+        "id"=>uniqid(true), //genererar unikt id 
+        "catBreed"=>$catBreed,
+        "catName"=>$catName
+    ]; 
+
+    $cats = data::getData("cats"); //hämta gammal data 
+    array_push($cats, $cat);   //först array sen vad vi pushar 
+    data::saveData("cats", $cats); 
+
+    //redirect 
+    header("Location: http://localhost/GA/cats");  //absolute route  
 });
+
+

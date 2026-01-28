@@ -28,3 +28,22 @@ get('/colors/$color', function($color){
 });
 ```
 taget från Fredrics video --> funktioner som save och get data i "data.php". 
+
+#### query grej 
+``` php
+get("/cats", function(){
+    $catBreed =  $_GET['breed'] ?? " ";
+    echo "cats like this: $catBreed , are pretty peak, right?"; //query string  
+}); 
+``` 
+query string --> i URL ger ut resultatet med echo som använder utgivna variabeln. 
+
+#### post och formulär kopplat 
+``` php 
+post("/save", function(){
+    Res::json($_POST); 
+}); 
+``` 
+vi har ett formulär i html filen som då har action "./save" med method post. 
+vi tar emot post grejen och använder oss utav res (klass, funktion?) från response.php. 
+detta kan vi tack vare "require("filnamn")" i början av hela kodskiten yes. 
