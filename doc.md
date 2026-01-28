@@ -1,1 +1,6 @@
-# Documentation 
+# Documentation / Loggbok 
+
+## Gjort 
+```  
+```
+## Ska göras 
