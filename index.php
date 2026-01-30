@@ -5,7 +5,6 @@ require("Response.php");
 require("data.php");  
 
 
-
 get("/", function(){
     echo "This is meant to be the default check page"; 
 }); 
@@ -14,12 +13,16 @@ get("/contact", function(){
     echo "this is the contact page"; 
 }); 
 
+get("/cats", function(){
+    Res::debug(data::getData("cats")); 
+}); 
+
 get('/cat/$id', function($id){
     echo "car with id: $id";  
 }); 
 
 get("/create", function(){
-    include("form.html"); 
+    include('create.html'); 
 });
 
 post("/save", function(){
@@ -38,9 +41,29 @@ post("/save", function(){
     header("Location: http://localhost/GA/cats");
 }); 
 
-get("/cats", function(){
-    Res::debug(data::getData("cats")); 
+get("/delete", function(){
+    include("delete.html"); 
 }); 
+
+// FIXA ROUTE IDJIWUFEIOJFEO
+post("/remove", function(){
+    $cat = [
+        "id"=>$_POST['id'],
+        "catBreed"=>$_POST['catBreed'],
+        "catName"=>$_POST['catName']
+    ]; 
+
+    $cats = data::getData("cats"); 
+
+    $filtedCats = array_filter($cats, function($car){ //fixa 
+        return $car!=$cat; //fixa  
+    });
+
+    data::saveData("cats", $filtedCats); 
+    header("Location: http://localhost/GA/cats"); 
+
+});
+ 
 
 get('/cats/$catBreed/$catName', function($catBreed, $catName){
     //en associative array 

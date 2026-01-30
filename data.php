@@ -16,5 +16,9 @@ class data{
         file_put_contents($fileName, $data); 
     }
 
+    public static function deleteData(){
+        
+    }
+
 
 }

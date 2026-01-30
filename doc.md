@@ -47,3 +47,19 @@ post("/save", function(){
 vi har ett formulär i html filen som då har action "./save" med method post. 
 vi tar emot post grejen och använder oss utav res (klass, funktion?) från response.php. 
 detta kan vi tack vare "require("filnamn")" i början av hela kodskiten yes. 
+
+#### filter av fredric 
+``` php
+
+$arr = [12, 14, 15, 16];
+
+$lT12 = array_filter($arr, function($n){
+
+return $n>12;
+
+});
+
+
+var_dump($lT12);
+```
+filter yes 
