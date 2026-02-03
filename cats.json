@@ -1,42 +1,32 @@
-[
-    {
+{
+    "0": {
         "id": "id_1",
         "catBreed": "maine coon",
         "name": "Moon"
     },
-    {
-        "id": "id_2",
-        "catBreed": "ragdoll",
-        "name": "BABEL"
-    },
-    {
-        "id": "id_3",
-        "catBreed": "Norsk skogskatt",
-        "name": "meow"
-    },
-    {
+    "3": {
         "id": "id_4",
         "catBreed": "Siamese cat",
         "name": "Sallen"
     },
-    {
+    "4": {
         "id": "1697a1b8bee8ff",
         "catBreed": "butterscotch",
         "catName": "butter"
     },
-    {
+    "5": {
         "id": "1697a1bbc70a67",
         "catBreed": "ragdoll",
         "catName": "butter"
     },
-    {
+    "6": {
         "id": "1697a202b571ae",
         "catBreed": "ragdoll",
         "catName": "biktoor"
     },
-    {
+    "7": {
         "id": "1697c6589c55ed",
         "catBreed": "norsk skogskatt",
         "catName": "lillan"
     }
-]
+}

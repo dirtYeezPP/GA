@@ -29,6 +29,24 @@ get('/colors/$color', function($color){
 ```
 taget från Fredrics video --> funktioner som save och get data i "data.php". 
 
+``` php
+ get('/cats/$catBreed/$catName', function($catBreed, $catName){
+    //en associative array 
+    $cat = [
+        "id"=>uniqid(true), //genererar unikt id 
+        "catBreed"=>$catBreed,
+        "catName"=>$catName
+    ]; 
+
+    $cats = data::getData("cats"); //hämta gammal data 
+    array_push($cats, $cat);   //först array sen vad vi pushar 
+    data::saveData("cats", $cats); 
+
+    //redirect 
+    header("Location: http://localhost/GA/cats");  //absolute route  
+});
+```
+borttagen create route yes (queries)
 #### query grej 
 ``` php
 get("/cats", function(){

@@ -2,7 +2,7 @@
 
 <?php 
 
-class Res{
+class res{
 
     public static function debug($data){
         echo "<pre>"; 

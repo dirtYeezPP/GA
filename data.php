@@ -16,7 +16,9 @@ class data{
         file_put_contents($fileName, $data); 
     }
 
-    public static function deleteData(){
+    public static function deleteData($file, $data){
+        $fileName = $file . ".json";
+        $data = file_get_contents($fileName); 
         
     }
 
