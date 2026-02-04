@@ -71,4 +71,42 @@ post("/remove", function(){
 });
  
 
+get("/update", function(){
+    include("update.html"); 
+}); 
 
+post("/alter", function(){
+
+
+
+    $cat = [
+        "id"=>$_POST['id'] ?? "no_id", 
+        "catName"=>$_POST['catName'], 
+        "catBreed"=>$_POST['catBreed']
+    ];
+
+    $cats = data::getData("cats"); 
+
+    $updateIndex = null;
+    $oldCat ="";
+    
+    foreach($cats as $index => $c)
+        {
+            if($cat['id'] == $c['id'])
+                {
+                     $updateIndex = $index;
+                     $oldCat = $c;
+                     break;
+                }
+
+        }
+        if($updateIndex) 
+            {
+                $cats[$updateIndex]['catName'] = $cat['catName'] ? $cat['catName'] : $c['catName'];
+                $cats[$updateIndex]['catBreed'] = $cat['catBreed'] ? $cat['catBreed'] : $c['catBreed'];
+            }
+
+    data::saveData("cats", $cats);
+    header("Location: http://localhost/GA/cats");
+
+});
