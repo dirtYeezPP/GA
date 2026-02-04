@@ -75,7 +75,7 @@ get("/update", function(){
     include("update.html"); 
 }); 
 
-post("/alter", function(){
+post("/alter", function(){ //MAKE IT BETTER !!! EX THROUGH MAKING AN EXTRA FUNCTION INSTEAD THAT FINDS THE CAT 
 
 
 
@@ -87,9 +87,9 @@ post("/alter", function(){
 
     $cats = data::getData("cats"); 
 
-    $updateIndex = null;
+    $updateIndex = null; //pretty gay to use 2 variables for a check later 
     $oldCat ="";
-    
+    //make the control act on earlier, in order to check it without the unnecessary extra code here.. 
     foreach($cats as $index => $c)
         {
             if($cat['id'] == $c['id'])
@@ -103,7 +103,7 @@ post("/alter", function(){
         if($updateIndex) 
             {
                 $cats[$updateIndex]['catName'] = $cat['catName'] ? $cat['catName'] : $c['catName'];
-                $cats[$updateIndex]['catBreed'] = $cat['catBreed'] ? $cat['catBreed'] : $c['catBreed'];
+                $cats[$updateIndex]['catBreed'] = $cat['catBreed'] ? $cat['catBreed'] : $c['catBreed']; //ternary operator 
             }
 
     data::saveData("cats", $cats);
