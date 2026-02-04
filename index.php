@@ -62,7 +62,7 @@ post("/remove", function(){
 
     $cats = data::getData("cats"); 
     
-    $filtedCats = array_filter($cats, function($c) use($catId){ //use gör att vi kan använda cat såsom den är global fr 
+    $filtedCats = array_filter($cats, function($c) use($catId){ //use gör att vi kan använda cat som om den är global fr 
         return $c['id'] != $catId; 
     });
 
