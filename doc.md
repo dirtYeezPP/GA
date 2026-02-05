@@ -81,3 +81,8 @@ return $n>12;
 var_dump($lT12);
 ```
 filter yes 
+
+
+## GAY 
+fetch --> skickar ny http förfrågan (webb glr pp form)
+?id=${id}&catName=${name}&catBreed=${breed} gay 
