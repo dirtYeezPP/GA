@@ -4,13 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>update</title>
+
+    <script>
+        function submitCats(){
+            console.log("HELLOOO");
+            const id = document.querySelector("#id").value; 
+            const name = document.querySelector("#name").value; 
+            const breed = document.querySelector("#breed").value; 
+
+            const data = new URLSearchParams();
+            data.append('id', id);
+            data.append('name', name);
+            data.append('breed', breed);
+
+            fetch(`/GA-main/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"}).then((response) => {
+                const loco = response.headers.get("Loco");
+                window.location.replace(loco);
+                return response.json();
+            }).then((response) => {
+                console.log(response);
+            });
+        }
+        // php vill inte ha in grejer i json utan i det som står i headers 
+        // ?id=${id}&catName=${name}&catBreed=${breed} efter cats 
+    </script>
 </head>
 <body>
-    <form action="./alter" method="post">
-        <input type="text" name="id" placeholder="id?">
-        <input type="text" name="catName" placeholder="change name?">
-        <input type="text" name="catBreed" placeholder="change breed?">
-        <input type="submit" value="alter">
+    <form>
+        <input id="id" type="text" name="id" placeholder="id?"/>
+        <input id="name" type="text" name="catName" placeholder="change name?"/>
+        <input id="breed" type="text" name="catBreed" placeholder="change breed?"/>
+        <button onclick="submitCats()" type="button">update</button> <!-- form är gay och ändrar button utan type -->
     </form>
 </body>
 </html>

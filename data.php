@@ -13,12 +13,8 @@ class data{
     public static function saveData($file, $data){
         $fileName = $file . ".json"; 
         $data = (array) $data;
-        $data = json_encode($data, JSON_PRETTY_PRINT); //flagga (prettyy pring), få det se finare ut i fil
+        $data = json_encode($data, JSON_PRETTY_PRINT); //flagga (pretty print), få det se finare ut i fil
         file_put_contents($fileName, $data); 
-    }
-
-    public static function changeData($file, $data){
-        $fileName = $file . "json"; 
     }
 
 }

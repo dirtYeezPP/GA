@@ -25,12 +25,12 @@ get('/cat/$id', function($id){
 }); 
 
 
-//CREATE 
-get("/create", function(){
+//CREATE ROUTE  
+get("/cats/create", function(){
     include('create.html'); 
 });
 
-post("/save", function(){
+post("/cats", function(){
     //Res::json($_POST); 
 
     $cat = [
@@ -43,20 +43,15 @@ post("/save", function(){
     array_push($cats, $cat); 
     data::saveData("cats", $cats); 
 
-    header("Location: http://localhost/GA/cats");
+    header("Location: http://localhost/GA-main/cats");
 }); 
 
-// DELETE 
-get("/delete", function(){
+// DELETE ROUTE
+get("/cats/delete", function(){
     include("delete.html"); 
 }); 
 
-post("/remove", function(){
-    //$cat = [
-        //"id"=>$_POST['id']
-        //"catBreed"=>$_POST['catBreed'],
-        //"catName"=>$_POST['catName']
-    //]; 
+delete("/cats", function(){
 
     $catId = $_POST['id']; 
 
@@ -67,29 +62,30 @@ post("/remove", function(){
     });
 
     data::saveData("cats", $filtedCats);
-    header("Location: http://localhost/GA/cats"); 
+    header("Location: http://localhost/GA-main/cats"); //GA-main at hom
 });
  
 
-get("/update", function(){
+
+// UPDATE ROUTE
+get("/cats/update", function(){
     include("update.html"); 
 }); 
 
-post("/alter", function(){ //MAKE IT BETTER !!! EX THROUGH MAKING AN EXTRA FUNCTION INSTEAD THAT FINDS THE CAT 
+patch("/cats", function(){  
 
-
+    parse_str(file_get_contents('php://input'), $_PATCH);
 
     $cat = [
-        "id"=>$_POST['id'] ?? "no_id", 
-        "catName"=>$_POST['catName'], 
-        "catBreed"=>$_POST['catBreed']
+        "id"=>$_PATCH['id'] ?? "no_id", 
+        "catName"=>$_PATCH['name'], 
+        "catBreed"=>$_PATCH['breed']
     ];
 
     $cats = data::getData("cats"); 
 
-    $updateIndex = null; //pretty gay to use 2 variables for a check later 
+    $updateIndex = null;  
     $oldCat ="";
-    //make the control act on earlier, in order to check it without the unnecessary extra code here.. 
     foreach($cats as $index => $c)
         {
             if($cat['id'] == $c['id'])
@@ -98,7 +94,6 @@ post("/alter", function(){ //MAKE IT BETTER !!! EX THROUGH MAKING AN EXTRA FUNCT
                      $oldCat = $c;
                      break;
                 }
-
         }
         if($updateIndex) 
             {
@@ -107,6 +102,5 @@ post("/alter", function(){ //MAKE IT BETTER !!! EX THROUGH MAKING AN EXTRA FUNCT
             }
 
     data::saveData("cats", $cats);
-    header("Location: http://localhost/GA/cats");
-
+    header("Loco: http://localhost/GA-main/cats"); 
 });
