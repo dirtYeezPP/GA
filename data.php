@@ -19,10 +19,6 @@ class data{
 
     public static function changeData($file, $data){
         $fileName = $file . "json"; 
-        $data = file_get_contents($fileName);
-        
-        
     }
-
 
 }
