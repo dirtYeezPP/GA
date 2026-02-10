@@ -53,10 +53,9 @@ get("/cats/delete", function(){
 
 delete("/cats", function(){
 
-    parse_str(file_get_contents("php://input"), $delete_vars); //get ID from the request 
-    $id_to_delete = $delete_vars['id'];
+    parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request 
 
-    $catId = $_POST['id']; 
+    $catId = $_DELETE['id']; 
 
     $cats = data::getData("cats"); 
     
@@ -64,8 +63,10 @@ delete("/cats", function(){
         return $c['id'] != $catId; 
     });
 
+    $filtedCats = array_values($filtedCats); 
+
     data::saveData("cats", $filtedCats);
-    header("Location: http://localhost/GA/cats"); //GA-main at hom
+    header("Loco: http://localhost/GA/cats"); 
 });
  
 
@@ -80,8 +81,7 @@ patch("/cats", function(){
     parse_str(file_get_contents('php://input'), $_PATCH);
 
     $cat = [
-        "id"=>$_PATCH['id'] ?? "no_id", 
-        "catName"=>$_PATCH['name'], 
+        "id"=>$_PATCH['id'] ?? "no_id",         "catName"=>$_PATCH['name'], 
         "catBreed"=>$_PATCH['breed']
     ];
 
