@@ -86,3 +86,23 @@ filter yes
 ## GAY 
 fetch --> skickar ny http förfrågan (webb glr pp form)
 ?id=${id}&catName=${name}&catBreed=${breed} gay 
+
+``` php 
+$data = file_get_contents("php://input")
+```
+gets the raw message body 
+
+``` js
+   const data = new URLSearchParams();
+                data.append('id', id);
+                data.append('name', name);
+                data.append('breed', breed); 
+``` 
+append builds the letter that is sent to the server. 
+youre telling the server which specifications to look for. 
+
+``` js
+                const loco = response.headers.get("Loco");
+                window.location.replace(loco); 
+``` 
+vi skapar en egen redirect till homepage, annars stannar den på exempelvis /update utan att ta oss tillbaka. 

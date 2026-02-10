@@ -43,7 +43,7 @@ post("/cats", function(){
     array_push($cats, $cat); 
     data::saveData("cats", $cats); 
 
-    header("Location: http://localhost/GA-main/cats");
+    header("Location: http://localhost/GA/cats");
 }); 
 
 // DELETE ROUTE
@@ -52,6 +52,9 @@ get("/cats/delete", function(){
 }); 
 
 delete("/cats", function(){
+
+    parse_str(file_get_contents("php://input"), $delete_vars); //get ID from the request 
+    $id_to_delete = $delete_vars['id'];
 
     $catId = $_POST['id']; 
 
@@ -62,7 +65,7 @@ delete("/cats", function(){
     });
 
     data::saveData("cats", $filtedCats);
-    header("Location: http://localhost/GA-main/cats"); //GA-main at hom
+    header("Location: http://localhost/GA/cats"); //GA-main at hom
 });
  
 
@@ -102,5 +105,5 @@ patch("/cats", function(){
             }
 
     data::saveData("cats", $cats);
-    header("Loco: http://localhost/GA-main/cats"); 
+    header("Loco: http://localhost/GA/cats"); 
 });

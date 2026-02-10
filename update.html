@@ -17,7 +17,7 @@
             data.append('name', name);
             data.append('breed', breed);
 
-            fetch(`/GA-main/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"}).then((response) => {
+            fetch(`/GA/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"}).then((response) => {
                 const loco = response.headers.get("Loco");
                 window.location.replace(loco);
                 return response.json();
