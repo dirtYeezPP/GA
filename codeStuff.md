@@ -63,7 +63,10 @@ windows location replace händer före nästa then --> så pagen hinner faktiskt
 ``` php
 parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request 
 ```
-i ovanstående JS kod, skickar vi in en massa data och sådant, vi måste hämta parsea datan inom servern för att veta vad vi ska göra. 
+Servern måste parsea den data vi skickar genom fetch samt för att kunna göra nedanstående. 
+``` php
+"catName" => $_PATCH['name'],
+```
 
 #### REDIRECT GREJ 
 ``` php
