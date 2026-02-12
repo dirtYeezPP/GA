@@ -58,7 +58,12 @@ Servern får genom headers (innehållet) reda på att datan är formaterad som e
 Redirect manual --> vi talar om att vi vill hantera redirecten inom koden själv, att den inte ska göra det automatiskt. 
 window location replace loco --> skickar browsern till URL som är i loco. 
 return response json --> takes body från serverns svar och gör om det till en javascript object för att möjliggöra läsning. 
-windows location replace händer före nästa then --> så pagen hinner faktiskt inte reagera (vi bortkommenterade detta inom annan fil)., 
+windows location replace händer före nästa then --> så pagen hinner faktiskt inte reagera (vi bortkommenterade detta inom annan fil).
+
+``` php
+parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request 
+```
+i ovanstående JS kod, skickar vi in en massa data och sådant, vi måste hämta parsea datan inom servern för att veta vad vi ska göra. 
 
 #### REDIRECT GREJ 
 ``` php
@@ -69,6 +74,7 @@ kan replaceas med
 window.location.replace("/GA/cats"); //script i html 
 ```
 då window.location sätter vilken webbsida du är på --> efter vi servern utfört delete eller update kommer detta ta hand om redirect istället. 
+
 
 ## FREDRIC BASED 
 
