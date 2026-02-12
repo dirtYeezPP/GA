@@ -111,6 +111,11 @@ $q delen --> vi vill välja ALLT från vår databas cats.
 vi gör det till en tom array och gör att vi tar in objekt så länge det finns nya att ta in, annars kanske den visar bara en. 
 De kommer inte visas i rätt format om vi inte skriver fetch_assoc (associative array). 
 
+``` php
+Res::json(Db::getCats());
+```
+detta gör vi i en route för att hämta vår data från MySQL databasen, samt gör om den till json fil för rätt format och utskrift. 
+
 ## OTHER BASED 
 
 #### SQLite 
