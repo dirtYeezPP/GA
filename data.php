@@ -9,7 +9,7 @@ class data{
         return json_decode($data, true); //true -> object become array --> easier to work with when data  
     }
 
-    //skapa eller spara yes 
+    /** spara data */
     public static function saveData($file, $data){
         $fileName = $file . ".json"; 
         $data = (array) $data;

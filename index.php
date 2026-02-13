@@ -3,19 +3,13 @@
 require("router.php");
 require("Response.php");
 require("data.php");
-require("Db.php");
-
-
-
-
-
+require_once 'connect.php';
+//require("Db.php");
 
 
 get("/", function () {
 
-
-Res::json(Db::getCats());
-
+//Res::json(Db::getCats());
 
 });
 
@@ -43,14 +37,14 @@ get("/cats/create", function () {
 post("/cats", function () {
     //Res::json($_POST); 
 
-    $cat = [
+    $requested = [
         "id" => uniqid(true),
         "catBreed" => $_POST['catBreed'],
         "catName" => $_POST['catName']
     ];
 
     $cats = data::getData("cats");
-    array_push($cats, $cat);
+    $cats[] = $requested;
     data::saveData("cats", $cats);
 
     header("Location: http://localhost/GA/cats");
@@ -69,13 +63,13 @@ delete("/cats", function () {
 
     $cats = data::getData("cats");
 
-    $filtedCats = array_filter($cats, function ($c) use ($catId) { //use gör att vi kan använda cat som om den är global fr 
+    $filteredCats = array_filter($cats, function ($c) use ($catId) { //use gör att vi kan använda cat som om den är global fr
         return $c['id'] != $catId;
     });
 
-    $filtedCats = array_values($filtedCats);
+    $filteredCats = array_values($filteredCats);
 
-    data::saveData("cats", $filtedCats);
+    data::saveData("cats", $filteredCats);
     header("Loco: http://localhost/GA/cats");
 });
 
@@ -90,26 +84,15 @@ patch("/cats", function () {
 
     parse_str(file_get_contents('php://input'), $_PATCH);
 
-    $cat = [
-        "id" => $_PATCH['id'] ?? "no_id",
-        "catName" => $_PATCH['name'],
-        "catBreed" => $_PATCH['breed']
-    ];
+    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed']];
 
     $cats = data::getData("cats");
 
-    $updateIndex = null;
-    $oldCat = ""; // används aldrig.. 
-    foreach ($cats as $index => $c) {
-        if ($cat['id'] == $c['id']) {
-            $updateIndex = $index;
-            $oldCat = $c; 
-            break;
+    foreach ($cats as $c) {
+        if ($request['id'] == $c['id']) {
+            $c['catName'] = $request['catName'] ?: $c['catName']; //ternary operator
+            $c['catBreed'] = $request['catBreed'] ?: $c['catBreed'];
         }
-    }
-    if ($updateIndex) {
-        $cats[$updateIndex]['catName'] = $cat['catName'] ? $cat['catName'] : $c['catName']; // här ska det möjligtvis egentligen stå oldcat efter : 
-        $cats[$updateIndex]['catBreed'] = $cat['catBreed'] ? $cat['catBreed'] : $c['catBreed']; //ternary operator 
     }
 
     data::saveData("cats", $cats);
