@@ -3,7 +3,6 @@
 
 class Db{
 
-
     private static function connect(){
     
         $servername = "localhost";
@@ -17,11 +16,7 @@ class Db{
         if ($con->connect_error)  return ["error" => $con->connect_error];
         
         return $con;
-
-
         }
-
-
         public static function getCats(){
 
             // Koppla upp oss mot databas
@@ -38,7 +33,4 @@ class Db{
 
 
         }
-
-
-
-    }/* End class */
+    }
