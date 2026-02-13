@@ -99,16 +99,16 @@ patch("/cats", function () {
     $cats = data::getData("cats");
 
     $updateIndex = null;
-    $oldCat = "";
+    $oldCat = ""; // används aldrig.. 
     foreach ($cats as $index => $c) {
         if ($cat['id'] == $c['id']) {
             $updateIndex = $index;
-            $oldCat = $c;
+            $oldCat = $c; 
             break;
         }
     }
     if ($updateIndex) {
-        $cats[$updateIndex]['catName'] = $cat['catName'] ? $cat['catName'] : $c['catName'];
+        $cats[$updateIndex]['catName'] = $cat['catName'] ? $cat['catName'] : $c['catName']; // här ska det möjligtvis egentligen stå oldcat efter : 
         $cats[$updateIndex]['catBreed'] = $cat['catBreed'] ? $cat['catBreed'] : $c['catBreed']; //ternary operator 
     }
 
