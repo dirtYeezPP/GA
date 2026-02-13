@@ -1,0 +1,14 @@
+*{
+    margin: 0;
+    box-sizing: border-box;
+}
+
+h2{
+    color: #2a113d;
+}
+
+body{
+    background: #a8a5c3;
+}
+
+/*TODO style other stuff in html files */
