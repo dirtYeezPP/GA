@@ -1,12 +1,12 @@
 <?php
 
 require("router.php");
-require("Response.php");
-require("data.php");
-require_once 'connect.php';
+require("src/Response.php");
+require("src/data.php");
+require_once 'src/connect.php';
 
 get("/", function () {
-
+    echo "you're gay";
 });
 
 // CONTACT PAGE 
@@ -14,7 +14,7 @@ get("/contact", 'views/contact.html');
 
 // SHOW ALL PRODUCTS 
 get("/cats", function () {
-    res::debug(data::getData("cats"));
+    Res::debug(data::getData("cats"));
 });
 
 // SPECIFIED ID QUERY 
@@ -63,14 +63,16 @@ get("/cats/update", 'views/update.html');
 patch("/cats", function () {
     parse_str(file_get_contents('php://input'), $_PATCH);
     $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed']];
+
     $cats = data::getData("cats");
 
-    foreach ($cats as $c) {
+    foreach ($cats as &$c) {
         if ($request['id'] == $c['id']) {
             $c['catName'] = $request['catName'] ?: $c['catName']; //ternary operator
             $c['catBreed'] = $request['catBreed'] ?: $c['catBreed'];
         }
     }
+
     data::saveData("cats", $cats);
     header("Loco: http://localhost/GA/cats");
 });

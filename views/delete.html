@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>delete</title>
-    <link rel="stylesheet" href="style.css">
+<!--    <link rel="stylesheet" href="style.css">-->
 
     <script>
-            function submitRemoval(){
+            async function submitRemoval(){
                 console.log("HELLOOO");
                 const id = document.querySelector("#id").value; 
                 if (!id) return console.error("No ID provided"); //check if ID is existent 
@@ -15,13 +15,14 @@
                 const data = new URLSearchParams();
                 data.append('id', id);
 
-                fetch(`/GA/cats`, {method:"DELETE", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"}).then((response) => {
-                    const loco = response.headers.get("Loco");
-                    window.location.replace(loco);
-                    return response.json();
-                }).then((response) => {
-                    console.log(response);
-                });
+                const response = await fetch(`/GA/cats`, {method:"DELETE", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
+                const loco = response.headers.get("Loco");
+                console.log(loco);
+
+                const json = await response.text();
+                console.log(json);
+                window.location.href = loco;
+
         }
     </script>
 

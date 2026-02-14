@@ -130,3 +130,28 @@ detta gör vi i en route för att hämta vår data från MySQL databasen, samt g
 #### SQLite 
 SQLite is serverless database that is self-contained --> the DB engine runs as a part of the app. 
 MySQL requires a server to run (vilken vi kan med XAMPP men ändå), MySQL kräver en client och server arkitektur för att interagera över nätverket. 
+
+##### SQLite connection 
+
+1. mkdir database 
+2. define variable db to store path to file in database dir
+3. define dsn -> stores data src name of SQLite database file. 
+4. try catch statement to catch error :D 
+5. open connect in browser, check if your .db file has been created 
+``` php
+$db = './databas/cattos.db';
+
+$dsn = "sqlite:$db";
+
+try { 
+    $pdo = new \PDO($dsn); 
+    //echo "gay successfully";
+} catch (\PDOException $e) {
+    echo "". $e->getMessage() ."";
+}
+```
+###### SQLite tables 
+
+``` php
+
+```

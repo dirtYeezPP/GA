@@ -6,7 +6,8 @@
 ```
 This is how you start the whole thing. It is however recommended (by Fredric) to not have this at the end, despite being shown a lot. 
 
-A print out to the web is done by "echo" (res.send in js.. typ). 
+A printout to the web is done by "echo" (res.send in js typ). 
 
 ### SUPERGLOBALS 
-$_PATCH & $_DELETE arent superglobals, yet AI thinks so sometimes. 
+"\$_PATCH" & "$_DELETE" aren't superglobals, yet AI thinks so sometimes. 
+
