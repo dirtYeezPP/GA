@@ -1,0 +1,20 @@
+extends ../views/main.pug
+
+block titles
+    h1 ADD A CAT !
+    a(href="./") back
+
+block content
+    form(action="../cats", method="post")
+        p cats name?
+        |
+        input(type="text", name="catName", placeholder="cat name")
+        |
+        p cats breed?
+        |
+        input(type="text", name="catBreed", placeholder="cat breed")
+        |
+        submit submit
+
+block feet
+    h4 we love to see u add your catties batties latties !!!!

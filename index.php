@@ -5,7 +5,12 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-include_once __DIR__ . "/vendor/autoload.php";
+//include_once __DIR__ . "/vendor/autoload.php";
+require __DIR__ . "/vendor/autoload.php";
+
+$renderer = new \Phug\Renderer([
+   'paths' => [__DIR__ . '/views']
+]);
 
 get("/", function () {
     Phug::displayFile('views/main.pug');
@@ -34,8 +39,11 @@ get('/cat/$id', function ($id) {
     echo "car with id: $id";
 });
 
-//CREATE ROUTE  
-get("/cats/create", 'views/create.html');
+//CREATE ROUTE
+
+get("/cats/create", function () use($renderer){
+    echo $renderer->renderFile('create.pug');
+});
 
 post("/cats", function () use ($pdo){
     $requested = [

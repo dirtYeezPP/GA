@@ -5,6 +5,11 @@ style.
         box-sizing: border-box;
     }
 
+    @font-face {
+        font-family: nunitoFont;
+        src: url(nunito-regular.woff);
+    }
+
     :root {
         --rosewater: #f5e0dc;
         --flamingo: #f2cdcd;
@@ -36,4 +41,17 @@ style.
 
     body{
         background-color: var(--base);
+    }
+    h1, h3{
+        color: var(--text);
+        font-family: nunitoFont, serif;
+    }
+    p, li{
+        color: var(--subtext1);
+        font-family: nunitoFont, sans-serif;
+    }
+    a{
+        color: var(--subtext0);
+        text-decoration: none;
+        font-size: 1.7rem;
     }
