@@ -5,12 +5,16 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
+include_once __DIR__ . "/vendor/autoload.php";
+
+
 get("/", function () {
-    echo "you're gay";
+    Phug::displayFile('views/main.pug');
 });
 
-// CONTACT PAGE 
-get("/contact", 'views/contact.html');
+get("/contact", function () {
+    Phug::displayFile('views/contact.pug');
+});
 
 // SHOW ALL PRODUCTS 
 get("/cats", function () use ($pdo) {
