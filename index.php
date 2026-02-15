@@ -16,7 +16,7 @@ get("/contact", 'views/contact.html');
 get("/cats", function () use ($pdo) {
     $stmt = $pdo->query("SELECT id, name, breed FROM cattos");
     $cats = [];
-    while ($cat = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+    while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $cats[] = [
             'id'=>$cat['id'],
             'name'=>$cat['name'],
@@ -68,7 +68,8 @@ patch("/cats", function () use($pdo) {
 
     $existentName = !empty($request['catName']);
     $existentBreed  = !empty($request['catBreed']);
-    $sql = "UPDATE cattos SET ";
+    $sql = /** @lang text */
+        "UPDATE cattos SET ";
     if($existentName) {
         $sql = $sql."name=:catName ";
         $sqlPramValues["catName"] = $request['catName'];
