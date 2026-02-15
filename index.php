@@ -2,7 +2,6 @@
 
 require("router.php");
 require("src/Response.php");
-require("src/data.php");
 require_once 'src/connect.php';
 global $pdo;
 
@@ -14,8 +13,17 @@ get("/", function () {
 get("/contact", 'views/contact.html');
 
 // SHOW ALL PRODUCTS 
-get("/cats", function () {
-    Res::debug(data::getData("cats"));
+get("/cats", function () use ($pdo) {
+    $stmt = $pdo->query("SELECT id, name, breed FROM cattos");
+    $cats = [];
+    while ($cat = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+        $cats[] = [
+            'id'=>$cat['id'],
+            'name'=>$cat['name'],
+            'breed'=>$cat['breed']
+        ];
+    }
+    Res::debug($cats);
 });
 
 // SPECIFIED ID QUERY 
@@ -32,8 +40,7 @@ post("/cats", function () use ($pdo){
         "name" => $_POST['catName']
     ];
     $sql = "INSERT INTO cattos (name, breed) VALUES ( :name, :breed)";
-    $stmt= $pdo->prepare($sql);
-    $stmt->execute($requested);
+    $pdo->prepare($sql)->execute($requested);
 
     header("Location: http://localhost/GA/cats");
 });
@@ -57,13 +64,27 @@ get("/cats/update", 'views/update.html');
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);
     $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed']];
+    $sqlPramValues = [ "id"=>$request['id']];
 
-    if(empty($request['catName'])) {
-
+    $existentName = !empty($request['catName']);
+    $existentBreed  = !empty($request['catBreed']);
+    $sql = "UPDATE cattos SET ";
+    if($existentName) {
+        $sql = $sql."name=:catName ";
+        $sqlPramValues["catName"] = $request['catName'];
     }
-
-    $sql = "UPDATE cattos SET name=:catName, breed=:catBreed WHERE id=:id";
-    $pdo->prepare($sql)->execute($request);
+    if($existentName && $existentBreed){
+        $sql = $sql.", ";
+    }
+    if($existentBreed) {
+        $sql = $sql."breed=:catBreed ";
+        $sqlPramValues["catBreed"] = $request['catBreed'];
+    }
+    $sql = $sql."WHERE id=:id";
+    echo $sql;
+    if($existentName || $existentBreed){
+        $pdo->prepare($sql)->execute($sqlPramValues);
+    }
 
     header("Loco: http://localhost/GA/cats");
 });
