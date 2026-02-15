@@ -155,3 +155,9 @@ try {
 ``` php
 
 ```
+
+#### sql code stuff
+
+prepare → the query will always be the same in get, so we prepare the server to remember what to do. however i have not saved it, if i do i can loop foreach and give diff id, if you want to delete ids at the same time. 
+execute → executes. 
+we prepare our data and then execute it with the stuff that is sent in! 
