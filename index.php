@@ -60,7 +60,7 @@ post("/cats", function () use ($pdo){
     $requested = [
         "breed" => $_POST['catBreed'],
         "name" => $_POST['catName'],
-        "catPic" => $_POST['catPic']
+        "img" => $_POST['catPic']
     ];
     $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
@@ -125,6 +125,8 @@ patch("/cats", function () use($pdo) {
     if($existentName || $existentBreed || $existentPic){
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
+
+    //TODO fix name and pic, for each loop
 
     header("Loco: http://localhost/GA/cats");
 });
