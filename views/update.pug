@@ -1,0 +1,32 @@
+extends ../views/layout.pug
+
+
+block titles
+    h1 UPDATE INFO ABOUT CAT
+    p is it older? did you misspell the name?, we've got your back!
+
+block content
+    form
+        p the id of the cat
+        |
+        input( id="id", type="text", name="id", placeholder="id of cat")
+        |
+        p got the wrong name? otherwise leave it blank.
+        |
+        input( id="name", type="text", name="name", placeholder="change name?" )
+        |
+        p change the breed? otherwise leave blank.
+        |
+        input( id="breed", type="text", name="breed", placeholder="change breed?")
+        |
+        p change the image? otherwise leave blank.
+        |
+        input( id="catPic", type="text", name="catpic", placeholder="update picture?" )
+        |
+        p done? click the button!
+        |
+        button(type="button", onclick="submitChanges()") update info
+
+
+block feet
+    h4 we've got ur back no meowter what!

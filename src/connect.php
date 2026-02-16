@@ -10,7 +10,8 @@ try {
         CREATE TABLE IF NOT EXISTS cattos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            breed TEXT
+            breed TEXT,
+            img TEXT
         );
     ");
     //echo "gay successfully";

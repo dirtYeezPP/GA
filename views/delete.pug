@@ -1,13 +1,18 @@
-extends ../views/main.pug
+extends ../views/layout.pug
 
-    block titles
-        h1 DELETE A CAT!
-        p got the wrong one? neow problem
+block titles
+    h1 DELETE A CAT!
+    p got the wrong one? neow problem
 
-    block content
-        form
-            p which is the id of the cat?
-            |
-            input( id="id" type="text", placeholder="cat id?")
-            |
-            buttom(onclick="submitRemoval()", type="button")
+block content
+    form
+        p which is the id of the cat?
+        |
+        input( id="id" type="text", placeholder="cats id?")
+        |
+        button(onclick="submitRemoval()", type="button") Delete cat
+
+block feet
+    p we all make mistakes.
+    |
+    p it is neow problem.

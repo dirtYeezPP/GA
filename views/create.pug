@@ -1,8 +1,7 @@
-extends ../views/main.pug
+extends ../views/layout.pug
 
 block titles
-    h1 ADD A CAT !
-    a(href="./") back
+    h1 ADD/CREATE A CAT !
 
 block content
     form(action="../cats", method="post")
@@ -14,7 +13,15 @@ block content
         |
         input(type="text", name="catBreed", placeholder="cat breed")
         |
-        submit submit
+        p add a picture?
+        |
+        input(type="text", name="catPic", placeholder="img link")
+        |
+        p all done?
+        |
+        input(type="submit", value="create a car")
 
 block feet
+    a(href="./") back
+    |
     h4 we love to see u add your catties batties latties !!!!

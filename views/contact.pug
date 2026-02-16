@@ -1,26 +1,17 @@
-doctype html
-html(lang="en")
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport", content="width-device-width, initial-scale=1.0")
-        title Contact
-        style
-            include style.css
-        // script(src="routeFunction.js")
+extends ../views/layout.pug
 
-    body
-        header
-            h1 WELCOME TO THE CONTACT PAGE
+block titles
+    h1 WELCOME TO THE CONTACT PAGE
 
-        main
-            h3 This is a beautiful cat.
+block content
+    h3 This is a beautiful cat.
 
-            .imgBoxt
-                img(src="./images/catupward.jpg", alt="picture of cat", style="width:100px;height:100px;")
+    .imgBox
+        img(src="../images/catupward.jpg", alt="picture of cat")
 
-        footer
-            p looking for the actual contacts huh?
-            ul
-                li phon:0918797293
-                li emal: yirtpeezdd@hotmal.com
-            p thak u so mach for visiteng!!
+block feet
+    p looking for the actual contacts huh?
+    ul
+        li phon:0918797293
+        li emal: yirtpeezdd@hotmal.com
+    p thak u so mach for visiteng!!

@@ -7,20 +7,26 @@ global $pdo;
 
 //include_once __DIR__ . "/vendor/autoload.php";
 require __DIR__ . "/vendor/autoload.php";
+try {
+    $renderer = new \Phug\Renderer([
+        'paths' => [__DIR__ . '/views']
+    ]);
+} catch (\Phug\RendererException $e) {
+    echo $e->getMessage();
+}
+global $renderer;
 
-$renderer = new \Phug\Renderer([
-   'paths' => [__DIR__ . '/views']
-]);
 
-get("/", function () {
-    Phug::displayFile('views/main.pug');
+//HOME ROUTE
+get("/", function () use ($renderer) {
+    echo $renderer->renderFile('/main.pug');
 });
 
-get("/contact", function () {
-    Phug::displayFile('views/contact.pug');
+get("/cats/contact", function () use ($renderer) {
+    echo $renderer->renderFile('/contact.pug');
 });
 
-// SHOW ALL PRODUCTS 
+// SHOW ALL POSTS
 get("/cats", function () use ($pdo) {
     $stmt = $pdo->query("SELECT id, name, breed FROM cattos");
     $cats = [];
@@ -39,10 +45,10 @@ get('/cat/$id', function ($id) {
     echo "car with id: $id";
 });
 
-//CREATE ROUTE
 
-get("/cats/create", function () use($renderer){
-    echo $renderer->renderFile('create.pug');
+//CREATE ROUTE
+get("/cats/create", function () use ($renderer){
+    echo $renderer->renderFile('/create.pug');
 });
 
 post("/cats", function () use ($pdo){
@@ -56,8 +62,12 @@ post("/cats", function () use ($pdo){
     header("Location: http://localhost/GA/cats");
 });
 
+
+
 // DELETE ROUTE
-get("/cats/delete", 'views/delete.html');
+get("/cats/delete", function () use ($renderer){
+    echo $renderer->renderFile('/delete.pug');
+});
 
 delete("/cats", function () use ($pdo) {
     parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request 
@@ -69,8 +79,12 @@ delete("/cats", function () use ($pdo) {
     header("Loco: http://localhost/GA/cats");
 });
 
+
+
 // UPDATE ROUTE
-get("/cats/update", 'views/update.html');
+get("/cats/update", function () use ($renderer){
+    echo $renderer->renderFile('/update.pug');
+});
 
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);

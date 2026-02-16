@@ -1,0 +1,26 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width-device-width, initial-scale=1.0")
+        title Contact
+        script
+            include routeFunctions.js
+        style
+            include style.css
+    body
+        header
+            block titles
+                h1 This is the page
+            nav
+                a(href="/") Home
+                |
+                a(href="./cats/contact") Contact
+                |
+                a(href="/cats") Cats
+
+        main
+            block content
+
+        footer
+            block feet

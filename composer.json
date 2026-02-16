@@ -1,5 +1,6 @@
 {
     "require": {
-        "phug/phug": "^1.13"
+        "phug/phug": "^1.13",
+      "ext-pdo": "*"
     }
 }

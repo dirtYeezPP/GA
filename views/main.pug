@@ -1,26 +1,14 @@
-doctype html
-html(lang="en")
-    head
-        meta(charset="UTF-8")
-        meta(name="viewport", content="width-device-width, initial-scale=1.0")
-        title Contact
-        script(src="./routeFunction.js")
-        style
-            include style.css
-    body(style="text-align:center;")
-        header
-            block titles
-                h1 WELCOME TO THE PAGE
-                a(href="./cats") cats
-                |
-                a(href="./contact") contact
-        main
-            block content
-                p This is the very main page of the cat page.
-                .imgBox(style = "width:30vw;height:40vh;")
-                    img(src="./images/catchilling.jpg", alt = "the cat is chilling", style="width:100%;height:100%;display:block;")
+extends ../views/layout.pug
 
-        footer
-            block feet
-                h4 this is the bottom of the page of the cat page
+
+block titles
+    h1 WELCOME TO THE PAGE
+
+    block content
+        p This is the very main page of the cat page.
+        .imgBox
+            img(src="./images/catchilling.jpg", alt = "the cat is chilling")
+
+    block feet
+        h4 this is the bottom of the page of the cat page
 
