@@ -33,7 +33,11 @@
 }
 
 body{ background-color: var(--base); }
-h1, h3{ color: var(--text); font-family: nunitoFont, serif; }
+h1, h2, h3, h4, h5, h6{ color: var(--text); font-family: nunitoFont, serif; }
+h1{ font-size: 2.8rem; }
+h3{ font-size: 2.2rem; }
+h4{ font-size: 2rem; }
+h5{ font-size: 1.7rem; }
 p, li{ color: var(--subtext1); font-family: nunitoFont, sans-serif; }
 a{ color: var(--subtext0); text-decoration: none; font-size: 1.7rem; }
 
