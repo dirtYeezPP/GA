@@ -28,13 +28,14 @@ get("/cats/contact", function () use ($renderer) {
 
 // SHOW ALL POSTS
 get("/cats", function () use ($pdo) {
-    $stmt = $pdo->query("SELECT id, name, breed FROM cattos");
+    $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos");
     $cats = [];
     while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $cats[] = [
             'id'=>$cat['id'],
             'name'=>$cat['name'],
-            'breed'=>$cat['breed']
+            'breed'=>$cat['breed'],
+            'img'=>$cat['img']
         ];
     }
     Res::debug($cats);
@@ -54,9 +55,10 @@ get("/cats/create", function () use ($renderer){
 post("/cats", function () use ($pdo){
     $requested = [
         "breed" => $_POST['catBreed'],
-        "name" => $_POST['catName']
+        "name" => $_POST['catName'],
+        "catPic" => $_POST['catPic']
     ];
-    $sql = "INSERT INTO cattos (name, breed) VALUES ( :name, :breed)";
+    $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
 
     header("Location: http://localhost/GA/cats");
@@ -88,11 +90,12 @@ get("/cats/update", function () use ($renderer){
 
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed']];
+    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed'], "catPic" => $_PATCH['catPic']];
     $sqlPramValues = [ "id"=>$request['id']];
 
     $existentName = !empty($request['catName']);
     $existentBreed  = !empty($request['catBreed']);
+    $existentPic    = !empty($request['catPic']);
     $sql = /** @lang text */
         "UPDATE cattos SET ";
     if($existentName) {
@@ -106,9 +109,16 @@ patch("/cats", function () use($pdo) {
         $sql = $sql."breed=:catBreed ";
         $sqlPramValues["catBreed"] = $request['catBreed'];
     }
+    if($existentBreed && $existentPic){
+        $sql = $sql.", ";
+    }
+    if($existentPic) {
+        $sql = $sql."img=:catPic ";
+        $sqlPramValues["catPic"] = $request['catPic'];
+    }
     $sql = $sql."WHERE id=:id";
     echo $sql;
-    if($existentName || $existentBreed){
+    if($existentName || $existentBreed || $existentPic){
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
 

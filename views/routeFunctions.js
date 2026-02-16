@@ -5,11 +5,13 @@ async function submitChanges(){
     const id = document.querySelector("#id").value;
     const name = document.querySelector("#name").value;
     const breed = document.querySelector("#breed").value;
+    const catPic = document.querySelector('#catPic').value;
 
     const data = new URLSearchParams();
     data.append('id', id);
     data.append('name', name);
     data.append('breed', breed);
+    data.append('catPic', catPic);
 
     const response = await fetch(`/GA/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
     const loco = response.headers.get("Loco");
