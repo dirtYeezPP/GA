@@ -27,3 +27,22 @@
 ```
 took care of looping through each cat in array to find which one to modify. 
 requires the '&' before $c to not make a copy of it and use actual cats cat. 
+
+
+## PHP CATS ROUTE
+might take back 
+```php
+get("/cats", function () use ($pdo) {
+    $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos");
+    $cats = [];
+    while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $cats[] = [
+            'id'=>$cat['id'],
+            'name'=>$cat['name'],
+            'breed'=>$cat['breed'],
+            'img'=>$cat['img']
+        ];
+    }
+    Res::debug($cats);
+});
+```

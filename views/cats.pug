@@ -1,0 +1,18 @@
+extends ../views/layout.pug
+
+block titles
+    h1 ALL THE PRETTY CATTOS!
+
+block content
+    if count($cats) > 0
+        each $cat in $cats
+            .card
+                h4= $cat['name']
+                h5 Breed: #{$cat['breed']}
+                .imgBox
+                    img(src=$cat['img'])
+    else
+        p no cattos here
+
+block feet
+    p paws paws paws paws

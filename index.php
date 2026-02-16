@@ -7,15 +7,12 @@ global $pdo;
 
 //include_once __DIR__ . "/vendor/autoload.php";
 require __DIR__ . "/vendor/autoload.php";
-try {
-    $renderer = new \Phug\Renderer([
-        'paths' => [__DIR__ . '/views']
-    ]);
-} catch (\Phug\RendererException $e) {
-    echo $e->getMessage();
-}
-global $renderer;
 
+$renderer = new \Phug\Renderer([
+    'paths' => [__DIR__ . '/views'],
+    'expressionLanguage' => 'php'
+]);
+global $renderer;
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -27,18 +24,25 @@ get("/cats/contact", function () use ($renderer) {
 });
 
 // SHOW ALL POSTS
-get("/cats", function () use ($pdo) {
+get("/cats", function() use ($renderer, $pdo) {
+
     $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos");
     $cats = [];
     while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $cats[] = [
-            'id'=>$cat['id'],
-            'name'=>$cat['name'],
-            'breed'=>$cat['breed'],
-            'img'=>$cat['img']
+            'id' => $cat['id'],
+            'name' => $cat['name'],
+            'breed' => $cat['breed'],
+            'img' => $cat['img']
         ];
+    };
+
+    if (empty($cats)) {
+        die("Database returned zero cats. The array is empty!");
     }
-    Res::debug($cats);
+
+    echo $renderer->renderFile('/cats.pug', ['cats'=>$cats]);
+    //var_dump("cats", $cats);
 });
 
 // SPECIFIED ID QUERY 
