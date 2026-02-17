@@ -46,3 +46,36 @@ get("/cats", function () use ($pdo) {
     Res::debug($cats);
 });
 ```
+
+
+```php
+    $existentName = !empty($request['catName']);
+    $existentBreed  = !empty($request['catBreed']);
+    $existentPic    = !empty($request['catPic']);
+    $sql = /** @lang text */
+        "UPDATE cattos SET ";
+    if($existentName) {
+        $sql = $sql."name=:catName ";
+        $sqlPramValues["catName"] = $request['catName'];
+    }
+    if($existentName && $existentBreed){
+        $sql = $sql.", ";
+    }
+    if($existentBreed) {
+        $sql = $sql."breed=:catBreed ";
+        $sqlPramValues["catBreed"] = $request['catBreed'];
+    }
+    if($existentBreed && $existentPic){
+        $sql = $sql.", ";
+    }
+    if($existentPic) {
+        $sql = $sql."img=:catPic ";
+        $sqlPramValues["catPic"] = $request['catPic'];
+    }
+    $sql = $sql."WHERE id=:id";
+    echo $sql;
+    if($existentName || $existentBreed || $existentPic){
+        $pdo->prepare($sql)->execute($sqlPramValues);
+    }
+```
+replaced with a loop.. 

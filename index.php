@@ -94,31 +94,33 @@ get("/cats/update", function () use ($renderer){
 
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed'], "catPic" => $_PATCH['catPic']];
-    $sqlPramValues = [ "id"=>$request['id']];
+    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed'], "img" => $_PATCH['catPic']];
+    $sqlPramValues = [ "id"=>$request['id'] ];
 
     $existentName = !empty($request['catName']);
     $existentBreed  = !empty($request['catBreed']);
-    $existentPic    = !empty($request['catPic']);
+    $existentPic    = !empty($request['img']);
+
     $sql = /** @lang text */
         "UPDATE cattos SET ";
+
     if($existentName) {
         $sql = $sql."name=:catName ";
         $sqlPramValues["catName"] = $request['catName'];
     }
-    if($existentName && $existentBreed){
+    if($existentName && $existentBreed) {
         $sql = $sql.", ";
     }
     if($existentBreed) {
         $sql = $sql."breed=:catBreed ";
         $sqlPramValues["catBreed"] = $request['catBreed'];
     }
-    if($existentBreed && $existentPic){
+    if( ($existentName || $existentBreed) && $existentPic){
         $sql = $sql.", ";
     }
     if($existentPic) {
-        $sql = $sql."img=:catPic ";
-        $sqlPramValues["catPic"] = $request['catPic'];
+        $sql = $sql."img=:img ";
+        $sqlPramValues["img"] = $request['img'];
     }
     $sql = $sql."WHERE id=:id";
     echo $sql;
