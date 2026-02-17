@@ -5,6 +5,7 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
+//TODO the update route needs to update, make a loop to check if certain things are existent to be able to make the database update with given info only.
 //TODO add a register/login link with view to extension (form).
 //TODO  create a database that stores username, email and password of users who log in
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
