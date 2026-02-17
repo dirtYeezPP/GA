@@ -2,6 +2,12 @@ extends ../views/layout.pug
 
 block titles
     h1 ALL THE PRETTY CATTOS!
+    nav
+        a(href="./") Home
+        |
+        a(href="./cats/contact") Contact
+        |
+        a(href="./cats/create") create car
 
 block content
     if count($cats) > 0
@@ -9,6 +15,9 @@ block content
             .card
                 h4= $cat['name']
                 h5 Breed: #{$cat['breed']}
+                a(href="./cats/update") update
+                |
+                a(href="./cats/delete") delete
                 .imgBox
                     img(src=$cat['img'])
     else

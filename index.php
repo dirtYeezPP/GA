@@ -5,6 +5,12 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
+//TODO add a register/login link with view to extension (form).
+//TODO  create a database that stores username, email and password of users who log in
+//TODO if user is logged in, register/login link shall not be present. Change view based on role.
+//TODO "enable" sessions to check authorization and determine allowed actions based on user role.
+//TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
+
 //include_once __DIR__ . "/vendor/autoload.php";
 require __DIR__ . "/vendor/autoload.php";
 
@@ -58,9 +64,9 @@ get("/cats/create", function () use ($renderer){
 
 post("/cats", function () use ($pdo){
     $requested = [
-        "breed" => $_POST['catBreed'],
-        "name" => $_POST['catName'],
-        "img" => $_POST['catPic']
+        "name"=>$_POST["name"],
+        "breed" => $_POST['breed'],
+        "img" => $_POST['img']
     ];
     $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
@@ -94,26 +100,26 @@ get("/cats/update", function () use ($renderer){
 
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'] ?? "no_id", "catName" => $_PATCH['name'], "catBreed" => $_PATCH['breed'], "img" => $_PATCH['catPic']];
+    $request = ["id" => $_PATCH['id'] ?? "no_id", "name" => $_PATCH['name'], "breed" => $_PATCH['breed'], "img" => $_PATCH['img']];
     $sqlPramValues = [ "id"=>$request['id'] ];
 
-    $existentName = !empty($request['catName']);
-    $existentBreed  = !empty($request['catBreed']);
+    $existentName = !empty($request['name']);
+    $existentBreed  = !empty($request['breed']);
     $existentPic    = !empty($request['img']);
 
     $sql = /** @lang text */
         "UPDATE cattos SET ";
 
     if($existentName) {
-        $sql = $sql."name=:catName ";
-        $sqlPramValues["catName"] = $request['catName'];
+        $sql = $sql."name=:name ";
+        $sqlPramValues["name"] = $request['name'];
     }
     if($existentName && $existentBreed) {
         $sql = $sql.", ";
     }
     if($existentBreed) {
-        $sql = $sql."breed=:catBreed ";
-        $sqlPramValues["catBreed"] = $request['catBreed'];
+        $sql = $sql."breed=:breed ";
+        $sqlPramValues["breed"] = $request['breed'];
     }
     if( ($existentName || $existentBreed) && $existentPic){
         $sql = $sql.", ";
@@ -127,8 +133,6 @@ patch("/cats", function () use($pdo) {
     if($existentName || $existentBreed || $existentPic){
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
-
-    //TODO fix name and pic, for each loop
 
     header("Loco: http://localhost/GA/cats");
 });
