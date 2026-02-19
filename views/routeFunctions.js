@@ -45,3 +45,7 @@ async function submitRemoval(){
 
 }
 
+async function deleteCar() {
+
+}
+

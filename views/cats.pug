@@ -15,11 +15,15 @@ block content
             .card
                 h4= $cat['name']
                 h5 Breed: #{$cat['breed']}
-                a(href="./cats/update") update
                 |
-                a(href="./cats/delete") delete
+                //a(href="./cats/delete") delete
                 .imgBox
                     img(src=$cat['img'])
+                |
+                a(href="./cats/update") update
+                |
+                button(onclick="deleteCar()", type="button") DELETE
+
     else
         p no cattos here
 
