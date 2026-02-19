@@ -19,7 +19,7 @@ async function submitChanges(){
 
     const json = await response.text();
     console.log(json);
-    window.location.href = loco;
+    //window.location.href = loco;
 }
 
 // php vill inte ha in grejer i json utan i det som står i headers

@@ -5,7 +5,6 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-//TODO the update route needs to upgrade, make a loop to check if certain things are existent to be able to make the database update with given info only.
 //TODO add a register/login link with view to extension (form).
 //TODO  create a database that stores username, email and password of users who log in
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
@@ -102,37 +101,34 @@ get("/cats/update", function () use ($renderer){
 
 patch("/cats", function () use($pdo) {
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'] ?? "no_id", "name" => $_PATCH['name'], "breed" => $_PATCH['breed'], "img" => $_PATCH['img']];
-    $sqlPramValues = [ "id"=>$request['id'] ];
+    $request = ["id" => $_PATCH['id'], "name" => $_PATCH['name'], "breed" => $_PATCH['breed'], "img" => $_PATCH['img']];
 
-    $existentName = !empty($request['name']);
-    $existentBreed  = !empty($request['breed']);
-    $existentPic    = !empty($request['img']);
+    $sqlPramValues = array_filter($request, function ($value) {
+        return !empty($value);
+    });
 
     $sql = /** @lang text */
         "UPDATE cattos SET ";
 
-    if($existentName) {
-        $sql = $sql."name=:name ";
-        $sqlPramValues["name"] = $request['name'];
+    $i = 0;
+    foreach ($sqlPramValues as $key => $value) {
+        $i += 1;
+        if ($key=="id") {
+            continue;
+        }
+        $sql = $sql."$key=:$key";
+        if ($i < count($sqlPramValues)) {
+            $sql = $sql.", ";
+        }
     }
-    if($existentName && $existentBreed) {
-        $sql = $sql.", ";
-    }
-    if($existentBreed) {
-        $sql = $sql."breed=:breed ";
-        $sqlPramValues["breed"] = $request['breed'];
-    }
-    if( ($existentName || $existentBreed) && $existentPic){
-        $sql = $sql.", ";
-    }
-    if($existentPic) {
-        $sql = $sql."img=:img ";
-        $sqlPramValues["img"] = $request['img'];
-    }
-    $sql = $sql."WHERE id=:id";
+
+    $sql = $sql." WHERE id=:id";
     echo $sql;
-    if($existentName || $existentBreed || $existentPic){
+
+    var_dump($request);
+    var_dump($sqlPramValues);
+
+    if(count($sqlPramValues)>1){
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
 

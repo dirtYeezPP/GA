@@ -52,6 +52,18 @@ get("/cats", function () use ($pdo) {
     $existentName = !empty($request['catName']);
     $existentBreed  = !empty($request['catBreed']);
     $existentPic    = !empty($request['catPic']);
+    
+        if (!empty($request['name'])) {
+        $sqlPramValues["name"] = $request['name'];
+    }
+    if (!empty($request['breed'])) {
+        $sqlPramValues["breed"] = $request['breed'];
+    }
+    if (!empty($request['img'])) {
+        $sqlPramValues["img"] = $request['img'];
+    }
+    
+    
     $sql = /** @lang text */
         "UPDATE cattos SET ";
     if($existentName) {
