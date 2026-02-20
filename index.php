@@ -6,8 +6,6 @@ require_once 'src/connect.php';
 global $pdo;
 
 //TODO fix update to pop-up instead of a redirect to create route...
-//TODO add a register/login link with view to extension (form).
-//TODO  create a database that stores username, email and password of users who log in
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
 //TODO "enable" sessions to check authorization and determine allowed actions based on user role.
 //TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
@@ -31,11 +29,11 @@ get("/cats/contact", function () use ($renderer) {
     echo $renderer->renderFile('/contact.pug');
 });
 
-get("/cats/register", function () use ($renderer) {
+get("/auth/register", function () use ($renderer) {
     echo $renderer->renderFile('/register.pug');
 });
 
-post("/cats", function () use ($pdo){
+post("/users", function () use ($pdo){
     $requested = [
         "username"=>$_POST['username'],
         "email" => $_POST['email'],
@@ -82,7 +80,7 @@ get("/cats/create", function () use ($renderer){
 
 post("/cats", function () use ($pdo){
     $requested = [
-        "name"=>$_POST["name"],
+        "name"=>$_POST['name'],
         "breed" => $_POST['breed'],
         "img" => $_POST['img']
     ];
