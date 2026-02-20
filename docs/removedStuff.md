@@ -91,3 +91,33 @@ get("/cats", function () use ($pdo) {
     }
 ```
 replaced with a loop.. 
+
+
+``` js
+async function submitRemoval(){
+    console.log("HELLOOO");
+    const id = document.querySelector("#id").value;
+    if (!id) return console.error("No ID provided"); //check if ID is existent
+
+    const data = new URLSearchParams();
+    data.append('id', id);
+
+    const response = await fetch(`/GA/cats`, {method:"DELETE", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
+    const loco = response.headers.get("Loco");
+    console.log(loco);
+
+    const json = await response.text();
+    console.log(json);
+    window.location.href = loco;
+
+}
+```
+
+``` php
+delete("/cats", function () use ($pdo) {
+    parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request
+    $catId = $_DELETE['id'];
+    $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
+    header("Loco: http://localhost/GA/cats");
+});
+```

@@ -1,4 +1,4 @@
-extends ../views/layout.pug
+extends ./layout.pug
 
 block titles
     h1 ALL THE PRETTY CATTOS!
@@ -12,17 +12,16 @@ block titles
 block content
     if count($cats) > 0
         each $cat in $cats
-            .card
+            .card(id="catCard-${cat['id']}")
                 h4= $cat['name']
                 h5 Breed: #{$cat['breed']}
                 |
-                //a(href="./cats/delete") delete
                 .imgBox
                     img(src=$cat['img'])
                 |
                 a(href="./cats/update") update
                 |
-                button(onclick="deleteCar()", type="button") DELETE
+                button(onclick="deleteCar(${cat['id']})", type="button") DELETE
 
     else
         p no cattos here

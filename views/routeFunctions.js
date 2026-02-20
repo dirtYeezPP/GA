@@ -27,25 +27,35 @@ async function submitChanges(){
 
 
 // DELETE ROUTE SCRIPT
-async function submitRemoval(){
-    console.log("HELLOOO");
-    const id = document.querySelector("#id").value;
-    if (!id) return console.error("No ID provided"); //check if ID is existent
+
+
+async function deleteCar(id) {
+    if (!id) return;
 
     const data = new URLSearchParams();
     data.append('id', id);
 
-    const response = await fetch(`/GA/cats`, {method:"DELETE", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
-    const loco = response.headers.get("Loco");
-    console.log(loco);
+    try {
+        const response = await fetch(`/GA/cats`, {
+            method: "DELETE",
+            body: data,
+            headers: {"Content-type": "application/x-www-form-urlencoded"}
+        });
 
-    const json = await response.text();
-    console.log(json);
-    window.location.href = loco;
+        if (response.ok) {
+            // 1. Find the card in the HTML
+            const cardToRemove = document.getElementById(`catCard-${id}`);
 
-}
-
-async function deleteCar() {
-
+            // 2. Make it disappear!
+            if (cardToRemove) {
+                cardToRemove.remove();
+                console.log(`Cat ${id} has left the building.`);
+            }
+        } else {
+            alert("Delete failed on the server.");
+        }
+    } catch (error) {
+        console.error("Network error:", error);
+    }
 }
 

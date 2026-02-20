@@ -5,7 +5,7 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-//TODO fix so that delete and update function as buttons (mostly delete)
+//TODO fix update to pop-up instead of a redirect to create route...
 //TODO add a register/login link with view to extension (form).
 //TODO  create a database that stores username, email and password of users who log in
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
@@ -77,16 +77,14 @@ post("/cats", function () use ($pdo){
 });
 
 
-// DELETE ROUTE
-get("/cats/delete", function () use ($renderer){
-    echo $renderer->renderFile('/delete.pug');
-});
-
+// DELETE THING
 delete("/cats", function () use ($pdo) {
-    parse_str(file_get_contents("php://input"), $_DELETE); //get ID from the request
+    parse_str(file_get_contents("php://input"), $_DELETE);
     $catId = $_DELETE['id'];
+
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
-    header("Loco: http://localhost/GA/cats");
+
+    //header("Location: http://localhost/GA/cats");
 });
 
 // UPDATE ROUTE
