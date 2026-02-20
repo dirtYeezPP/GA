@@ -1,6 +1,6 @@
 <?php
 
-$db = './databas/cattos.db';
+$db = './databas/database.sqlite';
 
 $dsn = "sqlite:$db";
 
@@ -12,6 +12,12 @@ try {
             name TEXT,
             breed TEXT,
             img TEXT
+        );
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            passwordHash TEXT 
         );
     ");
     //echo "gay successfully";

@@ -31,6 +31,22 @@ get("/cats/contact", function () use ($renderer) {
     echo $renderer->renderFile('/contact.pug');
 });
 
+get("/cats/register", function () use ($renderer) {
+    echo $renderer->renderFile('/register.pug');
+});
+
+post("/cats", function () use ($pdo){
+    $requested = [
+        "username"=>$_POST['username'],
+        "email" => $_POST['email'],
+        "passwordHash" => $_POST['password']
+    ];
+    $sql = "INSERT INTO users (name, email, passwordHash) VALUES ( :username, :email, :passwordHash)";
+    $pdo->prepare($sql)->execute($requested);
+
+    header("Location: http://localhost/GA/cats");
+});
+
 // SHOW ALL POSTS
 get("/cats", function() use ($renderer, $pdo) {
 

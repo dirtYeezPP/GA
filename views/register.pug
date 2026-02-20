@@ -1,14 +1,15 @@
 extends ./layout.pug
 
 block titles
-    h1 REGISTER !!! BECOME A PART OF THIS AMAZING CAT CU- GROUP!!1
+    h1 REGISTER
+    h4 !!! BECOME A PART OF THIS AMAZING CAT CU- GROUP!!1
 
 block content
-    form
-        input()
-        input()
-        input()
-        input()
+    form(action="../cats", method="Post")
+        input(id="", name="username", type="text", placeholder="username?")
+        input(id="", name="email", type="text", placeholder="email?")
+        input(id="", name="password", type="password", placeholder="password?")
+        input(id="", type="submit", value="register")
 
 block feet
     h4 WE THANK YOU
