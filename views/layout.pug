@@ -3,7 +3,7 @@ html(lang="en")
     head
         meta(charset="UTF-8")
         meta(name="viewport", content="width-device-width, initial-scale=1.0")
-        title CATSTAGRAM
+        title NekoToru
         script
             include routeFunctions.js
         style
@@ -11,13 +11,19 @@ html(lang="en")
     body
         header
             block titles
-                h1 This is the page
                 nav
-                    a(href="./") Home
-                    |
-                    a(href="./cats/contact") Contact
-                    |
-                    a(href="../cats") Cats
+                    block navigation
+                        p(class="navTitle") NekoToru
+                        |
+                        a(href="./") Home
+                        |
+                        a(href="./cats/contact") Contact
+                        |
+                        a(href="../cats") Cats
+                        |
+                        a(href="") Register
+                        |
+                        a(href="") Login
 
         main
             block content

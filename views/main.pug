@@ -1,11 +1,17 @@
 extends ./layout.pug
 
-block titles
-    h1 WELCOME TO THE PAGE
-    nav
+    block navigation
+        p(class="navTitle") NekoToru
+        |
+        a(href="./") Home
+        |
         a(href="./cats/contact") Contact
         |
-        a(href="./cats") Cats
+        a(href="../cats") Cats
+        |
+        a(href="") Register
+        |
+        a(href="") Login
 
 block content
     p This is the very main page of the cat page.
