@@ -5,7 +5,7 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-//TODO fix update to pop-up instead of a redirect to create route...
+//TODO fix update to pop-up instead of a redirect to update route...
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
 //TODO "enable" sessions to check authorization and determine allowed actions based on user role.
 //TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
