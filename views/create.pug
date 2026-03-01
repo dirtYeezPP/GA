@@ -4,18 +4,18 @@ block titles
     h1 ADD/CREATE A CAT !
 
 block content
-    form(action="../cats", method="post")
-        p cats name?
+    form(action="../cats", method="post" enctype="multipart/form-data")
+        label(for="nameInput") cats name?
         |
-        input(type="text", name="name", placeholder="cat name")
+        input(id="nameInput" type="text", name="name", placeholder="cat name")
         |
-        p cats breed?
+        label(for="breedInput") cats breed?
         |
-        input(type="text", name="breed", placeholder="cat breed")
+        input(id="breedInput" type="text", name="breed", placeholder="cat breed")
         |
-        p add a picture?
+        label(for="imgInput") add a picture?
         |
-        input(type="text", name="img", placeholder="img link")
+        input(id="imgInput" type="file", name="img", accept="image/*" placeholder="img link")
         |
         p all done?
         |

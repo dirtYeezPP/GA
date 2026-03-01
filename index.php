@@ -5,6 +5,13 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
+
+$navItems = [
+    ['id' => 'home', 'text' => 'Home', 'url' => './'],
+    ['id' => 'cats', 'text' => 'Cats', 'url' => './cats'],
+    ['id' => 'contact', 'text' => 'Contact', 'url' => './cats/contact']
+];
+
 //TODO fix update to pop-up instead of a redirect to update route...
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
 //TODO "enable" sessions to check authorization and determine allowed actions based on user role.
@@ -19,14 +26,15 @@ $renderer = new \Phug\Renderer([
     'expressionLanguage' => 'php'
 ]);
 global $renderer;
+$renderer->share('navItems', $navItems);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
-    echo $renderer->renderFile('/main.pug');
+    echo $renderer->renderFile('/main.pug', ['currentPage' => 'home']);
 });
 
 get("/cats/contact", function () use ($renderer) {
-    echo $renderer->renderFile('/contact.pug');
+    echo $renderer->renderFile('/contact.pug', ['currentPage' => 'contact']);
 });
 
 get("/auth/register", function () use ($renderer) {
@@ -63,7 +71,7 @@ get("/cats", function() use ($renderer, $pdo) {
         die("Database returned zero cats. The array is empty!");
     }
 
-    echo $renderer->renderFile('/cats.pug', ['cats'=>$cats]);
+    echo $renderer->renderFile('/cats.pug', ['cats'=>$cats], ['currentPage' => 'cats']);
     //var_dump("cats", $cats);
 });
 
@@ -79,10 +87,21 @@ get("/cats/create", function () use ($renderer){
 });
 
 post("/cats", function () use ($pdo){
+    $imgPathForDB = "";
+
+    if(isset($_FILES['img']) && $_FILES['img']['error'] == UPLOAD_ERR_OK) {
+        $uniqueFileName = time()."_".$_FILES['img']['name'];
+        $destOnServer = __DIR__."/uploads/".$uniqueFileName;
+
+        if(move_uploaded_file($_FILES['img']['tmp_name'], $destOnServer)) {
+            $imgPathForDB = "/" . $destOnServer;
+        }
+    }
+
     $requested = [
         "name"=>$_POST['name'],
         "breed" => $_POST['breed'],
-        "img" => $_POST['img']
+        "img" => $imgPathForDB
     ];
     $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
