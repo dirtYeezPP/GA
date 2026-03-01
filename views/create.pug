@@ -1,8 +1,5 @@
 extends ./layout.pug
 
-block titles
-    h1 ADD/CREATE A CAT !
-
 block content
     form(action="../cats", method="post" enctype="multipart/form-data")
         label(for="nameInput") cats name?

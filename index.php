@@ -5,23 +5,19 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-
-$navItems = [
-    ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
-    ['id' => 'cats', 'text' => 'Cats', 'url' => '/GA/cats'],
-    ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
-    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create'],
-];
-
 //TODO fix update to pop-up instead of a redirect to update route...
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
 //TODO "enable" sessions to check authorization and determine allowed actions based on user role.
 //TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
 //TODO the cattos database shall contain info about who posted a certain cat.
 
-//include_once __DIR__ . "/vendor/autoload.php";
+$navItems = [
+    ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
+    ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
+    ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
+    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create'],
+];
 require __DIR__ . "/vendor/autoload.php";
-
 $renderer = new \Phug\Renderer([
     'paths' => [__DIR__ . '/views'],
     'expressionLanguage' => 'php'
@@ -39,7 +35,7 @@ get("/cats/contact", function () use ($renderer) {
 });
 
 get("/auth/register", function () use ($renderer) {
-    echo $renderer->renderFile('/register.pug');
+    echo $renderer->renderFile('/register.pug', ['currentPage' => 'register/login']);
 });
 
 post("/users", function () use ($pdo){
@@ -72,7 +68,10 @@ get("/cats", function() use ($renderer, $pdo) {
         die("Database returned zero cats. The array is empty!");
     }
 
-    echo $renderer->renderFile('/cats.pug', ['cats'=>$cats], ['currentPage' => 'cats']);
+    echo $renderer->renderFile('/cats.pug', [
+         'cats'=>$cats,
+         'currentPage' => 'cars'
+    ]);
     //var_dump("cats", $cats);
 });
 
@@ -84,7 +83,7 @@ get('/cat/$id', function ($id) {
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
-    echo $renderer->renderFile('/create.pug');
+    echo $renderer->renderFile('/create.pug', ['currentPage' => 'createCar']);
 });
 
 post("/cats", function () use ($pdo){
