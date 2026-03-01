@@ -1,14 +1,13 @@
 
-block navigation
-    .navContainer
-        .navBrand
-            img.logo(src="images/logo.png" alt="logotyp")
-        .navLinks
-            each $item in $navItems
-                if $currentPage === $item['id']
-                    span.active= $item['text']
-                else
-                    a(href=$item['url'])= $item['text']
-        .navAuth
-            a.btn(href="") Register
-            a.btn.btn-primary(href="") Login
+.navContainer
+    .navBrand
+        img.logo(src="images/logo.png" alt="logotyp")
+    .navLinks
+        each $item in $navItems
+            if $currentPage === $item['id']
+                span.active= $item['text']
+            else
+                a(href=$item['url'])= $item['text']
+    .navAuth
+        a.btn(href="") Register
+        a.btn.btn-primary(href="") Login

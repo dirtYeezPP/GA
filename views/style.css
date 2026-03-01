@@ -74,7 +74,7 @@ footer{ padding: 0.4%; }
 }
 
 .navBrand{ display:flex; align-items:center; gap:15px; padding:10px; }
-.navBrand .logo{ height:40px; width:auto; transform-origin:left center; }
+.navBrand .logo{ height:40px; width:auto; }
 .navLinks{ display:flex; gap:30px; align-items: center; }
 
 .navLinks a{ border-radius: 10px; }

@@ -7,9 +7,10 @@ global $pdo;
 
 
 $navItems = [
-    ['id' => 'home', 'text' => 'Home', 'url' => './'],
-    ['id' => 'cats', 'text' => 'Cats', 'url' => './cats'],
-    ['id' => 'contact', 'text' => 'Contact', 'url' => './cats/contact']
+    ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
+    ['id' => 'cats', 'text' => 'Cats', 'url' => '/GA/cats'],
+    ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
+    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create'],
 ];
 
 //TODO fix update to pop-up instead of a redirect to update route...
@@ -91,10 +92,10 @@ post("/cats", function () use ($pdo){
 
     if(isset($_FILES['img']) && $_FILES['img']['error'] == UPLOAD_ERR_OK) {
         $uniqueFileName = time()."_".$_FILES['img']['name'];
-        $destOnServer = __DIR__."/uploads/".$uniqueFileName;
+        $destOnServer = "posts/".$uniqueFileName;
 
         if(move_uploaded_file($_FILES['img']['tmp_name'], $destOnServer)) {
-            $imgPathForDB = "/" . $destOnServer;
+            $imgPathForDB = $destOnServer;
         }
     }
 

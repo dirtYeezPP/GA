@@ -1,14 +1,5 @@
 extends ./layout.pug
 
-block titles
-    h1 ALL THE PRETTY CATTOS!
-    nav
-        a(href="./") Home
-        |
-        a(href="./cats/contact") Contact
-        |
-        a(href="./cats/create") create car
-
 block content
     if count($cats) > 0
         each $cat in $cats
