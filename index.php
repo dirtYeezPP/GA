@@ -5,7 +5,7 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-//TODO fix update to pop-up instead of a redirect to update route...
+//TODO fix update to pop-up instead of a redirect to update route... or a link/button to "editcat" route.
 //TODO if user is logged in, register/login link shall not be present. Change view based on role.
 //TODO "enable" sessions to check authorization and determine allowed actions based on user role.
 //TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
@@ -16,6 +16,8 @@ $navItems = [
     ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
     ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create'],
+//    ['id' => 'editCar', 'text' => 'Edit', 'url' => '/GA/cats/edit'],
+//    ['id' => 'showCar', 'text' => 'Show', 'url' => '/GA/cats/show'],
 ];
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([

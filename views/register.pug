@@ -2,8 +2,11 @@ extends ./layout.pug
 
 block content
     form(action="../catsIDK", method="Post")
+        label(for="usernam") username
         input(id="usernam", name="username", type="text", placeholder="username?")
+        label(for="emal") email
         input(id="emal", name="email", type="text", placeholder="email?")
+        label(for="paswr") password
         input(id="paswr", name="password", type="password", placeholder="password?")
         input(type="submit", value="register")
 

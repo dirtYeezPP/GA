@@ -59,3 +59,11 @@ async function deleteCar(id) {
     }
 }
 
+function editPost(){
+
+}
+
+function showPost(id){
+
+}
+
