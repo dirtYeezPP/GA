@@ -11,6 +11,9 @@ global $pdo;
 //TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
 //TODO the cattos database shall contain info about who posted a certain cat.
 
+//TODO the update window shall replace the picture of the cat with a form, and the id should be sent through clicking on the button
+//TODO OTHERWISE, add the update form when the product is shown on its own (show button/link) 
+
 $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
     ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
