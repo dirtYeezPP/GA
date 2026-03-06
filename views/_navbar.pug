@@ -1,13 +1,16 @@
 
-.navContainer
-    .navBrand
+.navContainer(id="navContainer")
+    .navBrand(id="navBrand")
         img.logo(src="images/logo.png" alt="logotyp")
-    .navLinks
-        each $item in $navItems
-            if $currentPage === $item['id']
-                span.active= $item['text']
-            else
-                a(href=$item['url'])= $item['text']
-    .navAuth
-        a.btn(href="") Register
-        a.btn.btn-primary(href="") Login
+    button.burgerMenu(id="burgerMenu" aria-label="Toggle Navigation") ☰
+
+    .navDesktopItems(id="desktopItems")
+        .navLinks(id="navLinks")
+            each $item in $navItems
+                if $currentPage === $item['id']
+                    span.active= $item['text']
+                else
+                    a(href=$item['url'])= $item['text']
+        .navAuth(id="navAuth")
+            a.btn(href="") Register
+            a.btn.btn-primary(href="") Login

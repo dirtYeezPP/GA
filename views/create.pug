@@ -1,7 +1,7 @@
 extends ./layout.pug
 
 block content
-    form(action="../cats", method="post" enctype="multipart/form-data")
+    form(action="../cats", method="post" enctype="multipart/form-data" class="createForm" id="createForm")
         label(for="nameInput") cats name?
         |
         input(id="nameInput" type="text", name="name", placeholder="cat name")

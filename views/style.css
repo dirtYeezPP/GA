@@ -1,8 +1,6 @@
 
 *{ margin: 0; box-sizing: border-box; }
 
-@font-face {  font-family: nunitoFont;  src: url(nunito-regular.woff);  }
-
 :root {
     --rosewater: #f5e0dc;
     --flamingo: #f2cdcd;
@@ -51,18 +49,13 @@
     --browniBorder: #E1C1AB;
 }
 
-body{ /*background-color: var(--brownie-base);*/ text-align: center; }
-h1, h2, h3, h4, h5, h6{ /*color: var(--brownieHeaders); */font-family: nunitoFont, serif; }
+body{ text-align: center; }
+h1, h2, h3, h4, h5, h6{ }
 h1{ font-size: 2.8rem; }
 h3{ font-size: 2.2rem; }
 h4{ font-size: 2rem; }
 h5{ font-size: 1.7rem; }
-p, li{ /*color: var(--brownieText);*/ font-family: nunitoFont, sans-serif; }
-a{ /*color: var(--brownieText);*/ text-decoration: none; font-size: 1.7rem; }
-
-header{ padding:0.4%; }
-main{ display:grid; place-items: center; gap: 10px; padding: 0.6%;}
-footer{ padding: 0.4%; }
+a{ text-decoration: none; font-size: 1.7rem; }
 
 .navContainer{
     display: flex;
@@ -71,11 +64,32 @@ footer{ padding: 0.4%; }
     border-radius: 10px;
     border: 1px solid #74c7ec;
     margin:20px;
+    flex-wrap: wrap;
 }
+
+.burgerMenu{ display: block; background: transparent; border: none; font-size: 23px; cursor: pointer; }
 
 .navBrand{ display:flex; align-items:center; gap:15px; padding:10px; }
 .navBrand .logo{ height:40px; width:auto; }
-.navLinks{ display:flex; gap:30px; align-items: center; }
+
+.navLinks, .navAuth{ display:flex; gap:30px; align-items: center; flex-direction: column;}
+
+.navDesktopItems{
+    display:none;
+    width: 100%;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 10px;
+}
+
+.navDesktopItems.open{ display:flex; }
+
+
+header{ padding:0.4%; }
+main{ display:grid; place-items: center; gap: 10px; padding: 0.6%;}
+footer{ padding: 0.4%; }
+
+
 
 .navLinks a{ border-radius: 10px; }
 .navLinks a.active{ border:1px solid #1e1e2e; }
@@ -88,8 +102,6 @@ footer{ padding: 0.4%; }
 
 /* HOME / MAIN  PAGE */
 
-
-
 /* CONTACT PAGE */
 
 /* CATS PAGE */
@@ -97,3 +109,18 @@ footer{ padding: 0.4%; }
 /* CREATE PAGE */
 
 /* LOGIN / REGISTER PAGE */
+
+/* MEDIA QUERY */
+
+@media(min-width: 500px){
+
+    .navContainer{flex-wrap: nowrap;}
+
+    .burgerMenu{ display:none; }
+
+    .navDesktopItems{ display:flex; flex-direction: row; align-items: center; gap: 30px; padding-top: 0; }
+
+    .navLinks, .navAuth{ flex-direction: row; }
+
+}
+

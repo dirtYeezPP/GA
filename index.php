@@ -18,9 +18,7 @@ $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
     ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
-    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create'],
-//    ['id' => 'editCar', 'text' => 'Edit', 'url' => '/GA/cats/edit'],
-//    ['id' => 'showCar', 'text' => 'Show', 'url' => '/GA/cats/show'],
+    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
@@ -84,7 +82,6 @@ get("/cats", function() use ($renderer, $pdo) {
 get('/cat/$id', function ($id) {
     echo "car with id: $id";
 });
-
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
