@@ -5,14 +5,19 @@ require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
 
-//TODO fix update to pop-up instead of a redirect to update route... or a link/button to "editcat" route.
-//TODO if user is logged in, register/login link shall not be present. Change view based on role.
-//TODO "enable" sessions to check authorization and determine allowed actions based on user role.
-//TODO have a separated user who is admin, to whom everything is accessible whilst others can only change what is posted by themselves (auth).
-//TODO the cattos database shall contain info about who posted a certain cat.
 
-//TODO the update window shall replace the picture of the cat with a form, and the id should be sent through clicking on the button
-//TODO OTHERWISE, add the update form when the product is shown on its own (show button/link) 
+// MAKE IT WORK
+//TODO fix login and sessions + password hashing
+
+//SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
+//TODO change link view based on route (Login/Register not present when logged in).
+//TODO fix media query for bigger screens, work in mobile first from now on.
+//TODO make connections to and fro databases (userID) on posts for AAA. + Admin user...
+
+// MAKE IT COOL LATER
+//TODO change update route into either a popup or an existent form on "single-product" view.
+//TODO update maybe could replace the cat picture.. just ideas.
+//TODO fix design and such in css.
 
 $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
@@ -42,12 +47,17 @@ get("/auth/register", function () use ($renderer) {
 });
 
 post("/users", function () use ($pdo){
+
+    $plainPassword = $_POST["password"];
+    $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
     $requested = [
         "username"=>$_POST['username'],
         "email" => $_POST['email'],
-        "passwordHash" => $_POST['password']
+        "hashedPassword" => $hashedPassword
     ];
-    $sql = "INSERT INTO users (name, email, passwordHash) VALUES ( :username, :email, :passwordHash)";
+
+    $sql = "INSERT INTO users (name, email, hashedPassword) VALUES ( :username, :email, :hashedPassword)";
     $pdo->prepare($sql)->execute($requested);
 
     header("Location: http://localhost/GA/cats");

@@ -3,7 +3,7 @@ extends ./layout.pug
 block content
     if count($cats) > 0
         each $cat in $cats
-            .card(id="catCard-${cat['id']}")
+            .card(id="catCard-#-{cat['id']}")
                 h4= $cat['name']
                 h5 Breed: #{$cat['breed']}
                 |
@@ -14,7 +14,7 @@ block content
                 |
                 button(onclick="showPost()", type="button") showCat
                 |
-                button(onclick="deleteCar(${cat['id']})", type="button") DELETE
+                button(onclick="deleteCar(#{$cat['id']})", type="button") DELETE
 
     else
         p no cattos here

@@ -17,7 +17,7 @@ try {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             email TEXT,
-            passwordHash TEXT 
+            hashedPassword VARCHAR(255)
         );
     ");
     //echo "gay successfully";
