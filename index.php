@@ -7,7 +7,7 @@ global $pdo;
 
 
 // MAKE IT WORK
-//TODO fix login and sessions + password hashing
+//TODO fix login and sessions
 
 //SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
 //TODO change link view based on route (Login/Register not present when logged in).
@@ -89,8 +89,14 @@ get("/cats", function() use ($renderer, $pdo) {
 });
 
 // SPECIFIED ID QUERY 
-get('/cat/$id', function ($id) {
-    echo "car with id: $id";
+get('/GA/cat/:id', function ($id) use ($renderer) {
+    echo $renderer->renderFile('/cat.pug', ['id' => $id]);
+});
+
+get('/api/cats/:id', function($id) use ($renderer, $pdo) {
+    $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos WHERE id = :id");
+    $stmt->execute(['id' => $id]);
+    $cats = $stmt->fetch(PDO::FETCH_ASSOC);
 });
 
 //CREATE ROUTE
