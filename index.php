@@ -4,7 +4,7 @@ require("router.php");
 require("src/Response.php");
 require_once 'src/connect.php';
 global $pdo;
-
+session_start();
 
 // MAKE IT WORK
 //TODO fix login and sessions
@@ -25,6 +25,10 @@ $navItems = [
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
     ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
+$navSessionItems = [
+    ['id' => 'register', 'text' => 'Register', 'url' => '/GA/auth/register'],
+    ['id' => 'login', 'text' => 'Login', 'url' => '/GA/auth/login']
+];
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
     'paths' => [__DIR__ . '/views'],
@@ -43,12 +47,11 @@ get("/cats/contact", function () use ($renderer) {
 });
 
 get("/auth/register", function () use ($renderer) {
-    echo $renderer->renderFile('/register.pug', ['currentPage' => 'register/login']);
+    echo $renderer->renderFile('/register.pug');
 });
 
-post("/users", function () use ($pdo){
+post("/auth/register", function () use ($pdo){
 
-    $plainPassword = $_POST["password"];
     $hashedPassword = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
     $requested = [
@@ -61,6 +64,33 @@ post("/users", function () use ($pdo){
     $pdo->prepare($sql)->execute($requested);
 
     header("Location: http://localhost/GA/cats");
+});
+
+//LOGN ROUTE
+get("/auth/login", function () use ($renderer) {
+    echo $renderer->renderFile('/login.pug');
+});
+
+post("/auth/login", function() use ($pdo) {
+
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $sql = "SELECT * FROM users WHERE email = :email";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['email' => $email]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if($user && password_verify($password, $user['hashedPassword'])){
+        $_SESSION['id'] = $user['id'];
+        $_SESSION['name'] = $user['name'];
+
+        header("Location: http://localhost/GA/cats");
+        exit;
+    } else {
+        echo "invalid email or password. Please try again or register.";
+    }
+
 });
 
 // SHOW ALL POSTS
@@ -135,7 +165,8 @@ delete("/cats", function () use ($pdo) {
 
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
 
-    //header("Location: http://localhost/GA/cats");
+    //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
+
 });
 
 // UPDATE ROUTE

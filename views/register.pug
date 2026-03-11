@@ -1,7 +1,7 @@
 extends ./layout.pug
 
 block content
-    form(action="../users", method="Post")
+    form(action="/GA/auth/register", method="Post")
         label(for="usernam") username
         input(id="usernam", name="username", type="text", placeholder="username?")
         label(for="emal") email
