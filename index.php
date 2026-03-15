@@ -1,13 +1,15 @@
 <?php
+session_start();
 
 require("router.php");
 require("src/Response.php");
 require_once 'src/connect.php';
+require_once 'src/funHelper.php';
 global $pdo;
-session_start();
 
 // MAKE IT WORK
-//TODO fix login and sessions
+//TODO fix file upload in a way where only image types are allowed to be stored.
+//TODO fix create route, doesnt upload pic on browser but stores it in db and posts folder
 
 //SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
 //TODO change link view based on route (Login/Register not present when logged in).
@@ -25,10 +27,9 @@ $navItems = [
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
     ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
-$navSessionItems = [
-    ['id' => 'register', 'text' => 'Register', 'url' => '/GA/auth/register'],
-    ['id' => 'login', 'text' => 'Login', 'url' => '/GA/auth/login']
-];
+$isLoggedIn = isset($_SESSION['id']);
+$userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
+
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
     'paths' => [__DIR__ . '/views'],
@@ -36,6 +37,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -63,7 +65,8 @@ post("/auth/register", function () use ($pdo){
     $sql = "INSERT INTO users (name, email, hashedPassword) VALUES ( :username, :email, :hashedPassword)";
     $pdo->prepare($sql)->execute($requested);
 
-    header("Location: http://localhost/GA/cats");
+    redirect("auth/register");
+
 });
 
 //LOGN ROUTE
@@ -90,7 +93,15 @@ post("/auth/login", function() use ($pdo) {
     } else {
         echo "invalid email or password. Please try again or register.";
     }
+});
 
+//LOGOUT
+get("/auth/logout", function () use ($renderer) {
+    $_SESSION = [];
+
+    session_destroy();
+
+    redirect("/cats");
 });
 
 // SHOW ALL POSTS
@@ -138,12 +149,22 @@ post("/cats", function () use ($pdo){
     $imgPathForDB = "";
 
     if(isset($_FILES['img']) && $_FILES['img']['error'] == UPLOAD_ERR_OK) {
-        $uniqueFileName = time()."_".$_FILES['img']['name'];
-        $destOnServer = "posts/".$uniqueFileName;
 
-        if(move_uploaded_file($_FILES['img']['tmp_name'], $destOnServer)) {
-            $imgPathForDB = $destOnServer;
+        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+
+        $fileName = $_FILES['img']['name'];
+        $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
+
+        if(in_array($fileEx, $allowedExes)) {
+            $uniqueFileName = uniqid('cat_', true).".".$fileEx;
+            $destOnServer = __DIR__."/posts/".$uniqueFileName;
+            if(move_uploaded_file($_FILES['img']['tmp_name'], $destOnServer)) {
+                $imgPathForDB = $destOnServer;
+            }
+        } else {
+            die("Invalid image format.");
         }
+
     }
 
     $requested = [
@@ -154,7 +175,7 @@ post("/cats", function () use ($pdo){
     $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
 
-    header("Location: http://localhost/GA/cats");
+    redirect("/cats");
 });
 
 
@@ -207,5 +228,5 @@ patch("/cats", function () use($pdo) {
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
 
-    header("Loco: http://localhost/GA/cats");
+    redirect("/cats");
 });
