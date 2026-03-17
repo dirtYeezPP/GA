@@ -114,7 +114,7 @@ get("/cats", function() use ($renderer, $pdo) {
             'id' => $cat['id'],
             'name' => $cat['name'],
             'breed' => $cat['breed'],
-            'img' => $cat['img']
+            'img' => "/GA/".$cat['img']
         ];
     };
 
@@ -146,36 +146,33 @@ get("/cats/create", function () use ($renderer){
 });
 
 post("/cats", function () use ($pdo){
-    $imgPathForDB = "";
+    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
+        die("file no upload yes");
+    }
 
-    if(isset($_FILES['img']) && $_FILES['img']['error'] == UPLOAD_ERR_OK) {
+    $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+    $fileName = $_FILES['img']['name'];
+    $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
 
-        $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
+    if(!in_array($fileEx, $allowedExes)) {
+        die("invalid file extension, its not allowed you bum");
+    }
 
-        $fileName = $_FILES['img']['name'];
-        $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
+    $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
-        if(in_array($fileEx, $allowedExes)) {
-            $uniqueFileName = uniqid('cat_', true).".".$fileEx;
-            $destOnServer = __DIR__."/posts/".$uniqueFileName;
-            if(move_uploaded_file($_FILES['img']['tmp_name'], $destOnServer)) {
-                $imgPathForDB = $destOnServer;
-            }
-        } else {
-            die("Invalid image format.");
-        }
-
+    if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
+        die("failed uploading file :((");
     }
 
     $requested = [
         "name"=>$_POST['name'],
         "breed" => $_POST['breed'],
-        "img" => $imgPathForDB
+        "img" => $uniqueFileName
     ];
     $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
     $pdo->prepare($sql)->execute($requested);
 
-    redirect("/cats");
+    redirect("cats");
 });
 
 
@@ -183,6 +180,11 @@ post("/cats", function () use ($pdo){
 delete("/cats", function () use ($pdo) {
     parse_str(file_get_contents("php://input"), $_DELETE);
     $catId = $_DELETE['id'];
+
+    $stmt = $pdo->query("SELECT img FROM cattos WHERE id = :id");
+    $stmt->execute(['id' => $catId]);
+    $img = $stmt->fetchColumn();
+
 
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
 
@@ -228,5 +230,5 @@ patch("/cats", function () use($pdo) {
         $pdo->prepare($sql)->execute($sqlPramValues);
     }
 
-    redirect("/cats");
+    redirect("cats");
 });
