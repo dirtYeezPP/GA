@@ -22,7 +22,7 @@ $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
     ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
-//    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
+    //['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 $isLoggedIn = isset($_SESSION['id']);
 $userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
