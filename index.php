@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 require("router.php");
 require("src/Response.php");
@@ -7,25 +6,23 @@ require_once 'src/connect.php';
 require_once 'src/funHelper.php';
 global $pdo;
 
-// MAKE IT WORK
-//TODO fix file upload in a way where only image types are allowed to be stored.
-//TODO fix create route, doesnt upload pic on browser but stores it in db and posts folder
+session_start();
 
 //SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
-//TODO change link view based on route (Login/Register not present when logged in).
-//TODO fix media query for bigger screens, work in mobile first from now on.
+//TODO fix profile view and profile deletion
 //TODO make connections to and fro databases (userID) on posts for AAA. + Admin user...
 
 // MAKE IT COOL LATER
 //TODO change update route into either a popup or an existent form on "single-product" view.
 //TODO update maybe could replace the cat picture.. just ideas.
 //TODO fix design and such in css.
+//TODO fix media query for bigger screens, work in mobile first from now on.
 
 $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
     ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
-    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
+//    ['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 $isLoggedIn = isset($_SESSION['id']);
 $userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
@@ -62,10 +59,21 @@ post("/auth/register", function () use ($pdo){
         "hashedPassword" => $hashedPassword
     ];
 
+    $checksql = "SELECT * FROM users WHERE email = :email";
+    $checkStmt = $pdo->prepare($checksql);
+    $checkStmt->execute(['email' => $requested['email']]);
+
+    $emailExists = $checkStmt->fetchColumn()>0;
+
+    if($emailExists){
+        echo "ts email is used vro..";
+        exit;
+    }
+
     $sql = "INSERT INTO users (name, email, hashedPassword) VALUES ( :username, :email, :hashedPassword)";
     $pdo->prepare($sql)->execute($requested);
 
-    redirect("auth/register");
+    redirect("auth/login");
 
 });
 
@@ -88,7 +96,7 @@ post("/auth/login", function() use ($pdo) {
         $_SESSION['id'] = $user['id'];
         $_SESSION['name'] = $user['name'];
 
-        header("Location: http://localhost/GA/cats");
+        redirect("cats");
         exit;
     } else {
         echo "invalid email or password. Please try again or register.";
@@ -97,12 +105,26 @@ post("/auth/login", function() use ($pdo) {
 
 //LOGOUT
 get("/auth/logout", function () use ($renderer) {
+    loginRequired();
     $_SESSION = [];
 
     session_destroy();
 
-    redirect("/cats");
+    redirect("cats");
 });
+
+get("/profile", function () use ($renderer) {
+    loginRequired();
+    echo $renderer->renderFile('/profile.pug');
+});
+
+//get("/auth/deleteAccount", function () use ($renderer) {
+//
+//});
+//
+//patch("/auth/updateAccount", function () use ($renderer) {
+//
+//});
 
 // SHOW ALL POSTS
 get("/cats", function() use ($renderer, $pdo) {
@@ -142,10 +164,14 @@ get('/api/cats/:id', function($id) use ($renderer, $pdo) {
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
+
+    loginRequired();
+
     echo $renderer->renderFile('/create.pug', ['currentPage' => 'createCar']);
 });
 
 post("/cats", function () use ($pdo){
+
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
         die("file no upload yes");
     }
@@ -185,7 +211,7 @@ delete("/cats", function () use ($pdo) {
     $stmt->execute(['id' => $catId]);
     $img = $stmt->fetchColumn();
 
-
+    unlink(__DIR__."/".$img);
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
@@ -194,6 +220,9 @@ delete("/cats", function () use ($pdo) {
 
 // UPDATE ROUTE
 get("/cats/update", function () use ($renderer){
+
+    loginRequired();
+
     echo $renderer->renderFile('/update.pug');
 });
 

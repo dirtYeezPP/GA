@@ -1,6 +1,7 @@
 extends ./layout.pug
 
 block content
+    h3 PLEASE LOG IN
     form(action="/GA/auth/login", method="Post")
         label(for="emal") email
         input(id="emal", name="email", type="text", placeholder="email?")

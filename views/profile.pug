@@ -1,0 +1,25 @@
+extends ./layout.pug
+
+block content
+    h1 HI DEAR USER
+
+    .updateProfileForum
+        form(action="../updateProfile", method="patch" enctype="multipart/form-data" class="updateProfileForum" id="UPF")
+            label(for="uId") profile id
+            |
+            input(id="uId" type="text", name="uId", placeholder="profile id")
+            |
+            label(for="uEmail") update email?
+            |
+            input(id="uEmail" type="text", name="uEmail", placeholder="update email?")
+            |
+            label(for="uName") change user?
+            |
+            input(id="uName" type="text" name="uName" placeholder="update username?")
+            |
+            p all done?
+            |
+            input(type="submit", value="update profile")
+
+    .DeleteProfile
+        button(onclick="deleteProfile()") DELETE
