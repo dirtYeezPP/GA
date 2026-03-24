@@ -24,8 +24,8 @@ $navItems = [
     ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
     //['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
+
 $isLoggedIn = isset($_SESSION['id']);
-//$userID = $_SESSION['id']; 
 $userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
 
 require __DIR__ . "/vendor/autoload.php";
@@ -35,7 +35,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userID'=>$userID]);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -119,9 +119,20 @@ get("/profile", function () use ($renderer) {
     echo $renderer->renderFile('/profile.pug');
 });
 
-//get("/auth/deleteAccount", function () use ($renderer) {
-//
-//});
+
+// NEW
+delete("/deleteProfile", function () use ($renderer, $pdo) {
+    parse_str(file_get_contents("php://input"), $_DELETE);
+    $uId = $_DELETE['id'];
+
+    $stmt = $pdo->query("SELECT id, name, email, hashedPassword FROM users WHERE id = :id");
+    $stmt->execute(['id' => $uId]);
+    $userDelete = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $pdo->prepare("DELETE FROM users WHERE id=?")->execute([$uId]);
+
+    //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
+});
 //
 //patch("/auth/updateAccount", function () use ($renderer) {
 //

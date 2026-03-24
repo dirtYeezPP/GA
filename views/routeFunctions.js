@@ -59,7 +59,26 @@ async function deleteCar(id) {
     }
 }
 
-async function deleteProfile(id){
 
+//IN PROGRESS
+async function deleteProfile(id){
+    if (!id) return;
+    const email = document.querySelector("#uEmail").value;
+    const username = document.querySelector("#uName").value;
+
+    const data = new URLSearchParams();
+    data.append('id', id);
+    data.append('uEmail', email);
+    data.append('uName', username);
+
+    try {
+        const response = await fetch(`/GA/cats`, {
+            method: "DELETE",
+            body: data,
+            headers: {"Content-type": "application/x-www-form-urlencoded"}
+        });
+    } catch (error) {
+        console.error("Network error:", error);
+    }
 }
 
