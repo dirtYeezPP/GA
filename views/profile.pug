@@ -1,7 +1,7 @@
 extends ./layout.pug
 
 block content
-    h1 HI DEAR USER
+    h1 HI DEAR #{$userName}
 
     .updateProfileForum
         form(action="../updateProfile", method="patch" enctype="multipart/form-data" class="updateProfileForum" id="UPF")
@@ -22,4 +22,4 @@ block content
             input(type="submit", value="update profile")
 
     .DeleteProfile
-        button(onclick="deleteProfile()") DELETE
+        button(onclick="deleteProfile(#{$userID})") DELETE
