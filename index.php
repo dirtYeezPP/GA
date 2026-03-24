@@ -25,6 +25,7 @@ $navItems = [
     //['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 $isLoggedIn = isset($_SESSION['id']);
+//$userID = $_SESSION['id']; 
 $userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
 
 require __DIR__ . "/vendor/autoload.php";
@@ -34,7 +35,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName]);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userID'=>$userID]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
