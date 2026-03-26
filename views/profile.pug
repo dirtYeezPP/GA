@@ -5,6 +5,10 @@ block content
 
     .updateProfileForum
         form(action="../updateProfile", method="patch" enctype="multipart/form-data" class="updateProfileForum" id="UPF")
+            label(for="paswr") password?
+            |
+            input(id="paswr", name="password", type="password", placeholder="password?")
+            |
             label(for="uEmail") update email?
             |
             input(id="uEmail" type="text", name="uEmail", placeholder="update email?")
@@ -13,10 +17,10 @@ block content
             |
             input(id="uName" type="text" name="uName" placeholder="update username?")
             |
-            p all done?
+            label(for="submitButtonPro") all done?
             |
-            input(type="submit", value="update profile")
+            button(id="submitButtonPro" type="button" onclick="submitProfileChanges()" value="update profile") UPDATE PROFILE
 
     .DeleteProfile
-        button(onclick="deleteProfile(#{})") DELETE
-        // CHANGE
+        button(onclick="deleteProfile({$userId})") DELETE
+

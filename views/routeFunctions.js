@@ -60,6 +60,41 @@ async function deleteCar(id) {
 }
 
 
+async function submitProfileChanges(){
+    const password = document.querySelector("#paswr").value;
+    const email = document.querySelector("#uEmail").value;
+    const name = document.querySelector("#uName").value;
+
+    if(!password){
+        alert("we need the password you bum");
+        return;
+    }
+
+    const data = new URLSearchParams();
+    data.append('password', password);
+    data.append('email', email);
+    data.append('name', name);
+
+    try {
+        const response = await fetch(`/GA/profile`, {
+            method: "PATCH",
+            body: data,
+            headers: {"Content-type": "application/x-www-form-urlencoded"},
+            redirect: "manual"
+        });
+
+        const loco = response.headers.get("Location") || response.headers.get("Loco");
+        if(loco){
+            window.location.href = loco;
+        } else {
+            const text = await response.text();
+            console.log("serv res:", text);
+        }
+    } catch (error) {
+        console.error("error updating profile..", error);
+    }
+}
+
 //IN PROGRESS
 async function deleteProfile(id){
     if (!id) return;

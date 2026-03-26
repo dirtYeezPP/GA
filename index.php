@@ -133,10 +133,52 @@ delete("/deleteProfile", function () use ($renderer, $pdo) {
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
 });
-//
-//patch("/auth/updateAccount", function () use ($renderer) {
-//
-//});
+
+patch("/profile", function() use($pdo){
+    loginRequired();
+    $uId = $_SESSION['id'];
+    parse_str(file_get_contents('php://input'), $_PATCH);
+    $givenPassword = $_PATCH['password'] ?? '';
+
+    $stmt = $pdo->prepare("SELECT hashedPassword FROM users WHERE id=:id");
+    $stmt->execute(['id' => $uId]);
+    $user = $stmt->fetch();
+
+    if(!$user || !password_verify($givenPassword, $user['hashedPassword'])){
+        http_response_code(401);
+        echo "incorrect password.. bummy";
+        exit;
+    }
+
+    $allowedFields = ['name', 'email'];
+    $updates = [];
+    $params = [];
+
+    foreach($allowedFields as $field){
+        if(!empty($_PATCH[$field])){
+            $updates[] = "$field = :$field";
+            $params[$field] = $_PATCH[$field];
+        }
+    }
+
+    if(!empty($updates)){
+        $sql = "UPDATE users SET " . implode(', ', $updates) . " WHERE id = :id";
+
+        $params['id'] = $uId;
+        $stmt = $pdo->prepare($sql);
+
+        if(!$stmt->execute($params)){
+            $refreshStmt = $pdo->prepare("SELECT name, email FROM users WHERE id=:id");
+            $refreshStmt->execute(['id' => $uId]);
+            $updatedUser = $refreshStmt->fetch(PDO::FETCH_ASSOC);
+
+            $_SESSION['name'] = $updatedUser['name'];
+            $_SESSION['email'] = $updatedUser['email'];
+        }
+    }
+
+    redirect("profile");
+});
 
 // SHOW ALL POSTS
 get("/cats", function() use ($renderer, $pdo) {
