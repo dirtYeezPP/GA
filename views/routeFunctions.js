@@ -1,7 +1,7 @@
 
 // UPDATE ROUTE SCRIPT
 async function submitChanges(){
-    console.log("HELLOOO");
+    console.log("UPDATE ATTEMPT.....");
     const id = document.querySelector("#id").value;
     const name = document.querySelector("#name").value;
     const breed = document.querySelector("#breed").value;
@@ -14,11 +14,22 @@ async function submitChanges(){
     data.append('img', catPic);
 
     const response = await fetch(`/GA/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
-    const loco = response.headers.get("Loco");
-    console.log(loco);
 
-    const json = await response.text();
-    console.log(json);
+    const msg = await response.text();
+    console.log("serv says:", msg);
+
+    if(!response.ok){
+        alert("uh oh.. you bum" + msg);
+        return;
+    }
+
+    const loco = response.headers.get("Loco");
+    if(loco){
+        window.location.href = loco;
+    } else{
+        alert("success but uhm where do we go now")
+    }
+
     //window.location.href = loco;
 }
 
@@ -83,35 +94,36 @@ async function submitProfileChanges(){
             redirect: "manual"
         });
 
-        const loco = response.headers.get("Location") || response.headers.get("Loco");
-        if(loco){
-            window.location.href = loco;
+        if(response.ok){
+            const jRes = await response.json();
+            window.location.href = jRes.Loco;
         } else {
-            const text = await response.text();
-            console.log("serv res:", text);
+            console.error("server refused this action");
         }
     } catch (error) {
-        console.error("error updating profile..", error);
+        console.error("Network error:", error);
     }
 }
 
 //IN PROGRESS
-async function deleteProfile(id){
-    if (!id) return;
-    const email = document.querySelector("#uEmail").value;
-    const username = document.querySelector("#uName").value;
+async function deleteProfile(){
 
-    const data = new URLSearchParams();
-    data.append('id', id);
-    data.append('uEmail', email);
-    data.append('uName', username);
+    const approved = confirm("are u sure u wanna delete ts? leave the cult?");
+    if(!approved) return;
 
     try {
-        const response = await fetch(`/GA/cats`, {
+        const response = await fetch(`/GA/deleteProfile`, {
             method: "DELETE",
-            body: data,
-            headers: {"Content-type": "application/x-www-form-urlencoded"}
+            headers: {"Content-type": "application/x-www-form-urlencoded"},
+            redirect: "manual"
         });
+
+        if(response.ok){
+            const jRes = await response.json();
+            window.location.href = jRes.Loco;
+        } else {
+            console.error("server refused this action");
+        }
     } catch (error) {
         console.error("Network error:", error);
     }

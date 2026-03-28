@@ -121,3 +121,31 @@ delete("/cats", function () use ($pdo) {
     header("Loco: http://localhost/GA/cats");
 });
 ```
+
+## UPDATE ROUTE 
+``` php
+    $sql = /** @lang text */
+        "UPDATE cattos SET ";
+
+    $i = 0;
+    foreach ($sqlPramValues as $key => $value) {
+        $i += 1;
+        if ($key=="id") {
+            continue;
+        }
+        $sql = $sql."$key=:$key";
+        if ($i < count($sqlPramValues)) {
+            $sql = $sql.", ";
+        }
+    }
+
+    $sql = $sql." WHERE id=:id";
+    echo $sql;
+
+    //var_dump($request);
+    //var_dump($sqlPramValues);
+
+    if(count($sqlPramValues)>1){
+        $pdo->prepare($sql)->execute($sqlPramValues);
+    }
+```

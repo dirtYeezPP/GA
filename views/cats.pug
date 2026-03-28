@@ -10,13 +10,13 @@ block content
                 .imgBox(style="height:20vw;width:auto;aspect-ratio:1/1;")
                     img(src=$cat['img'] style="width:100%;height:100%;object-fit:cover;")
                 |
-                button(onclick="editPost({$cat['id']})") edit
-                |
-                button(onclick="showPost({$cat['id']})", type="button") showCat
-                |
                 a(href="/GA/cat/{$cat['id']}") Show Post
                 |
-                button(onclick="deleteCar({$cat['id']})", type="button") DELETE
+
+                if $userId === $cat['postedById']
+                    button(onclick="deleteCar({$cat['id']})", type="button") DELETE
+                    |
+                    button(onclick="editPost({$cat['id']})") edit
 
     else
         p no cattos here

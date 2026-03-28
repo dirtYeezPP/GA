@@ -1,6 +1,7 @@
 {
     "require": {
         "phug/phug": "^1.13",
-      "ext-pdo": "*"
+      "ext-pdo": "*",
+      "ext-json": "*"
     }
 }

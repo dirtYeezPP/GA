@@ -9,8 +9,9 @@ global $pdo;
 session_start();
 
 //SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
-//TODO fix profile view and profile deletion
-//TODO make connections to and fro databases (userID) on posts for AAA. + Admin user...
+//TODO check status code thing on delete and update profile routes (net in web)n
+//TODO add userid to cats table
+//TODO make join thingy for the view of that users only, posts.
 
 // MAKE IT COOL LATER
 //TODO change update route into either a popup or an existent form on "single-product" view.
@@ -27,6 +28,7 @@ $navItems = [
 
 $isLoggedIn = isset($_SESSION['id']);
 $userName = $isLoggedIn ? $_SESSION['name'] : null; //if logged in is true --> username, otherwise --> null
+$userId = $isLoggedIn ? $_SESSION['id'] : null;
 
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
@@ -35,7 +37,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName]);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -98,7 +100,7 @@ post("/auth/login", function() use ($pdo) {
         $_SESSION['name'] = $user['name'];
 
         redirect("cats");
-        exit;
+
     } else {
         echo "invalid email or password. Please try again or register.";
     }
@@ -114,30 +116,50 @@ get("/auth/logout", function () use ($renderer) {
     redirect("cats");
 });
 
-get("/profile", function () use ($renderer) {
+get("/profile", function () use ($renderer, $pdo, $userId) {
     loginRequired();
-    echo $renderer->renderFile('/profile.pug');
+
+    $stmt = $pdo->prepare("SELECT * FROM cattos WHERE postedById = :postedById");
+    $stmt->execute(['postedById' => $userId]);
+
+    $userCats = [];
+    while($cat = $stmt->fetch(PDO::FETCH_ASSOC)){
+        $userCats[] = [
+            'id' => $cat['id'],
+            'name' => $cat['name'],
+            'breed' => $cat['breed'],
+            'img' => "/GA/".$cat['img']
+        ];
+    }
+
+    echo $renderer->renderFile('/profile.pug', ['cats' => $userCats]);
 });
 
 
 // NEW
 delete("/deleteProfile", function () use ($renderer, $pdo) {
+    loginRequired();
     parse_str(file_get_contents("php://input"), $_DELETE);
-    $uId = $_DELETE['id'];
+    $uId = $_SESSION['id'];
 
-    $stmt = $pdo->query("SELECT id, name, email, hashedPassword FROM users WHERE id = :id");
-    $stmt->execute(['id' => $uId]);
-    $userDelete = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pdo->prepare("DELETE FROM users WHERE id = :id")->execute(['id' => $uId]);
 
-    $pdo->prepare("DELETE FROM users WHERE id=?")->execute([$uId]);
+    $_SESSION = [];
+    session_destroy();
+
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'Loco'=>'GA/cats'
+    ]);
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
 });
 
 patch("/profile", function() use($pdo){
     loginRequired();
-    $uId = $_SESSION['id'];
     parse_str(file_get_contents('php://input'), $_PATCH);
+    $uId = $_SESSION['id'];
     $givenPassword = $_PATCH['password'] ?? '';
 
     $stmt = $pdo->prepare("SELECT hashedPassword FROM users WHERE id=:id");
@@ -146,7 +168,7 @@ patch("/profile", function() use($pdo){
 
     if(!$user || !password_verify($givenPassword, $user['hashedPassword'])){
         http_response_code(401);
-        echo "incorrect password.. bummy";
+        echo "incorrect password.. bum";
         exit;
     }
 
@@ -177,20 +199,25 @@ patch("/profile", function() use($pdo){
         }
     }
 
-    redirect("profile");
+    http_response_code(200);
+    echo json_encode([
+        'success' => true,
+        'Loco'=>'GA/cats'
+    ]);
 });
 
 // SHOW ALL POSTS
 get("/cats", function() use ($renderer, $pdo) {
 
-    $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos");
+    $stmt = $pdo->query("SELECT id, name, breed, img, postedById FROM cattos");
     $cats = [];
     while ($cat = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $cats[] = [
             'id' => $cat['id'],
             'name' => $cat['name'],
             'breed' => $cat['breed'],
-            'img' => "/GA/".$cat['img']
+            'img' => "/GA/".$cat['img'],
+            'postedById' => $cat['postedById']
         ];
     };
 
@@ -205,16 +232,7 @@ get("/cats", function() use ($renderer, $pdo) {
     //var_dump("cats", $cats);
 });
 
-// SPECIFIED ID QUERY 
-get('/GA/cat/:id', function ($id) use ($renderer) {
-    echo $renderer->renderFile('/cat.pug', ['id' => $id]);
-});
-
-get('/api/cats/:id', function($id) use ($renderer, $pdo) {
-    $stmt = $pdo->query("SELECT id, name, breed, img FROM cattos WHERE id = :id");
-    $stmt->execute(['id' => $id]);
-    $cats = $stmt->fetch(PDO::FETCH_ASSOC);
-});
+// SPECIFIED ID  QUERY
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
@@ -224,7 +242,9 @@ get("/cats/create", function () use ($renderer){
     echo $renderer->renderFile('/create.pug', ['currentPage' => 'createCar']);
 });
 
-post("/cats", function () use ($pdo){
+post("/cats", function () use ($pdo, $userId){
+
+    loginRequired();
 
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
         die("file no upload yes");
@@ -247,9 +267,10 @@ post("/cats", function () use ($pdo){
     $requested = [
         "name"=>$_POST['name'],
         "breed" => $_POST['breed'],
-        "img" => $uniqueFileName
+        "img" => $uniqueFileName,
+        "postedById" => $userId
     ];
-    $sql = "INSERT INTO cattos (name, breed, img) VALUES ( :name, :breed, :img)";
+    $sql = "INSERT INTO cattos (name, breed, img, postedById) VALUES ( :name, :breed, :img, :postedById)";
     $pdo->prepare($sql)->execute($requested);
 
     redirect("cats");
@@ -277,10 +298,13 @@ get("/cats/update", function () use ($renderer){
 
     loginRequired();
 
-    echo $renderer->renderFile('/update.pug');
+    $catId = $_GET['id'] ?? null;
+
+    echo $renderer->renderFile('/update.pug', ['catId' => $catId]);
 });
 
-patch("/cats", function () use($pdo) {
+patch("/cats", function () use($pdo, $userId) {
+    loginRequired();
     parse_str(file_get_contents('php://input'), $_PATCH);
     $request = ["id" => $_PATCH['id'], "name" => $_PATCH['name'], "breed" => $_PATCH['breed'], "img" => $_PATCH['img']];
 
@@ -288,30 +312,30 @@ patch("/cats", function () use($pdo) {
         return !empty($value);
     });
 
-    $sql = /** @lang text */
-        "UPDATE cattos SET ";
+    if(count($sqlPramValues) > 1 && isset($sqlPramValues['id'])) {
+        $sql = "UPDATES cattos SET ";
+        $setClauses = []; // clause is name = "luffy" can be called columnsToChange
 
-    $i = 0;
-    foreach ($sqlPramValues as $key => $value) {
-        $i += 1;
-        if ($key=="id") {
-            continue;
+        foreach($sqlPramValues as $field => $value) {
+            if($field=='id') continue;
+            $setClauses[] = "$field = :$field";
         }
-        $sql = $sql."$key=:$key";
-        if ($i < count($sqlPramValues)) {
-            $sql = $sql.", ";
+
+        $sql .= implode(', ', $setClauses);
+        $sql .= " WHERE id = :id AND postedById = :postedById";
+
+        $sqlPramValues['postedById'] = $userId;
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($sqlPramValues);
+
+        if($stmt->rowCount() === 0){
+            http_response_code(403);
+            echo "Error: The audacity you motherfucker! you dont have the purrmission for this!";
+            return;
         }
     }
 
-    $sql = $sql." WHERE id=:id";
-    echo $sql;
-
-    //var_dump($request);
-    //var_dump($sqlPramValues);
-
-    if(count($sqlPramValues)>1){
-        $pdo->prepare($sql)->execute($sqlPramValues);
-    }
-
-    redirect("cats");
+    header("Loco: /cats");
+    echo "sauces";
 });
