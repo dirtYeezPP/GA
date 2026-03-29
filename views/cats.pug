@@ -10,7 +10,7 @@ block content
                 .imgBox(style="height:20vw;width:auto;aspect-ratio:1/1;")
                     img(src=$cat['img'] style="width:100%;height:100%;object-fit:cover;")
                 |
-                a(href="/GA/cat/{$cat['id']}") Show Post
+                a(href=$pathPrefix."cats/{$cat['id']}") Show Post
                 |
                 if $userId === $cat['postedById']
                     button(onclick="deleteCar({$cat['id']})", type="button") DELETE

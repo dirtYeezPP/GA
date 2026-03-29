@@ -1,45 +1,55 @@
 
 // UPDATE ROUTE SCRIPT
-async function submitChanges(){
+async function updateCarInfo(){
     console.log("UPDATE ATTEMPT.....");
     const id = document.querySelector("#id").value;
     const name = document.querySelector("#name").value;
     const breed = document.querySelector("#breed").value;
-    const catPic = document.querySelector('#img').value;
 
     const data = new URLSearchParams();
     data.append('id', id);
     data.append('name', name);
     data.append('breed', breed);
-    data.append('img', catPic);
 
     const response = await fetch(`/GA/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
 
-    const msg = await response.text();
-    console.log("serv says:", msg);
-
     if(!response.ok){
-        alert("uh oh.. you bum" + msg);
+        alert("uh oh.. you bum" + await response.text());
+        return;
+    }
+    alert("car is updated")
+
+}
+
+
+async function updateCarImage(){
+    const id = document.querySelector("#id").value;
+    const img = document.querySelector("#img");
+
+    if(img.files.length === 0){
+        alert("dude select an image first :(")
+        return;
+    }
+    const data = new FormData();
+    data.append('id', id);
+    data.append('img', img.files[0]);
+
+    const response = await fetch(`/GA/cats/image`, {method:"POST", body:data});
+    if(!response.ok){
+        alert("uh oh.. you bum" + await response.text());
         return;
     }
 
-    const loco = response.headers.get("Loco");
-    if(loco){
-        window.location.href = loco;
-    } else{
-        alert("success but uhm where do we go now")
-    }
-
-    //window.location.href = loco;
+    window.location.reload();
 }
+
+
 
 // php vill inte ha in grejer i json utan i det som står i headers
 // ?id=${id}&catName=${name}&catBreed=${breed} efter cats
 
 
 // DELETE ROUTE SCRIPT
-
-
 async function deleteCar(id) {
     if (!id) return;
 

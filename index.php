@@ -1,5 +1,9 @@
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require("router.php");
 require("src/Response.php");
 require_once 'src/connect.php';
@@ -20,9 +24,9 @@ session_start();
 //TODO fix media query for bigger screens, work in mobile first from now on.
 
 $navItems = [
-    ['id' => 'home', 'text' => 'Home', 'url' => '/GA/'],
-    ['id' => 'cars', 'text' => 'Cats', 'url' => '/GA/cats'],
-    ['id' => 'contact', 'text' => 'Contact', 'url' => '/GA/cats/contact'],
+    ['id' => 'home', 'text' => 'Home', 'url' => PATH_PREFIX],
+    ['id' => 'cars', 'text' => 'Cats', 'url' => PATH_PREFIX."cats"],
+    ['id' => 'contact', 'text' => 'Contact', 'url' => PATH_PREFIX."cats/contact"],
     //['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 
@@ -37,7 +41,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId]);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -128,7 +132,7 @@ get("/profile", function () use ($renderer, $pdo, $userId) {
             'id' => $cat['id'],
             'name' => $cat['name'],
             'breed' => $cat['breed'],
-            'img' => "/GA/".$cat['img']
+            'img' => PATH_PREFIX.$cat['img']
         ];
     }
 
@@ -150,7 +154,7 @@ delete("/deleteProfile", function () use ($renderer, $pdo) {
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'Loco'=>'GA/cats'
+        'Loco'=> PATH_PREFIX.'cats'
     ]);
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
@@ -202,7 +206,7 @@ patch("/profile", function() use($pdo){
     http_response_code(200);
     echo json_encode([
         'success' => true,
-        'Loco'=>'GA/cats'
+        'Loco'=> PATH_PREFIX.'cats'
     ]);
 });
 
@@ -216,7 +220,7 @@ get("/cats", function() use ($renderer, $pdo) {
             'id' => $cat['id'],
             'name' => $cat['name'],
             'breed' => $cat['breed'],
-            'img' => "/GA/".$cat['img'],
+            'img' => PATH_PREFIX.$cat['img'],
             'postedById' => $cat['postedById']
         ];
     };
@@ -231,8 +235,6 @@ get("/cats", function() use ($renderer, $pdo) {
     ]);
     //var_dump("cats", $cats);
 });
-
-// SPECIFIED ID  QUERY
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
@@ -277,6 +279,30 @@ post("/cats", function () use ($pdo, $userId){
 });
 
 
+// ONE PRODUCT VIEW
+get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
+
+    $stmt = $pdo->prepare("SELECT * FROM cattos WHERE id=:id");
+    $stmt->execute(['id' => $id]);
+    $catPost = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    var_dump($catPost);
+
+    if(!$catPost){
+        echo "no post";
+        return;
+    }
+
+    $isOwner = false;
+    if($catPost['postedById'] == $userId){
+        $isOwner = true;
+    }
+
+    echo $renderer->renderFile('/cat.pug', ['catPost' => $catPost, 'isOwner' => $isOwner, 'userId' => $userId]);
+
+});
+
+
 // DELETE THING
 delete("/cats", function () use ($pdo) {
     parse_str(file_get_contents("php://input"), $_DELETE);
@@ -293,20 +319,20 @@ delete("/cats", function () use ($pdo) {
 
 });
 
-// UPDATE ROUTE
-get("/cats/update", function () use ($renderer){
-
-    loginRequired();
-
-    $catId = $_GET['id'] ?? null;
-
-    echo $renderer->renderFile('/update.pug', ['catId' => $catId]);
-});
+//// UPDATE ROUTE
+//get("/cats/update", function () use ($renderer){
+//
+//    loginRequired();
+//
+//    $catId = $_GET['id'] ?? null;
+//
+//    echo $renderer->renderFile('/update.pug', ['catId' => $catId]);
+//});
 
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'], "name" => $_PATCH['name'], "breed" => $_PATCH['breed'], "img" => $_PATCH['img']];
+    $request = ["id" => $_PATCH['id'], "name" => $_PATCH['name'], "breed" => $_PATCH['breed']];
 
     $sqlPramValues = array_filter($request, function ($value) {
         return !empty($value);
@@ -338,4 +364,43 @@ patch("/cats", function () use($pdo, $userId) {
 
     header("Loco: /cats");
     echo "sauces";
+});
+
+post("/cats/image", function() use($pdo, $userId){
+    loginRequired();
+    $id = $_POST['id'] ?? null;
+    $carFile = $_FILES['img'] ?? null;
+
+    if(!$id || !$carFile || $carFile['error'] !== UPLOAD_ERR_OK) {
+        echo "ERROR: Bad request or meowssing file..";
+        return;
+    }
+
+    $ext = strtolower(pathinfo($carFile['name'], PATHINFO_EXTENSION));
+    if(!in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
+        echo "invalid file extension, its not allowed to upload you dummy";
+        return;
+    }
+
+    $stmt = $pdo->prepare("SELECT img FROM cattos WHERE id=? AND postedById = ?");
+    $stmt->execute([$id, $userId]);
+    $oldCarImg = $stmt->fetchColumn();
+
+    if($oldCarImg){
+        echo "Error: you aint got purrmission.. or your car is meowssing";
+    }
+
+    $newImgPath = "posts/".uniqid('cat_').".".$ext;
+    if(!move_uploaded_file($carFile['tmp_name'], __DIR__-"/".$newImgPath)) {
+        echo "failed uploading file :((";
+        return;
+    }
+
+    $pdo->prepare("UPDATE cattos SET img = :img WHERE id = :id")->execute([$newImgPath, $id]);
+    if(file_exists(__DIR__."/".$oldCarImg)){
+        unlink(__DIR__."/".$oldCarImg);
+    }
+
+    echo "picture uploaded saucely";
+
 });

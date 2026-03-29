@@ -1,6 +1,7 @@
 <?php
 
-const BASE_URL = 'http://localhost/GA/';
+const PATH_PREFIX = "/GA/";
+const BASE_URL = "http://localhost".PATH_PREFIX;
 
 function redirect($path) {
     header("Location: " . BASE_URL . $path);
