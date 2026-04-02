@@ -319,16 +319,8 @@ delete("/cats", function () use ($pdo) {
 
 });
 
-//// UPDATE ROUTE
-//get("/cats/update", function () use ($renderer){
-//
-//    loginRequired();
-//
-//    $catId = $_GET['id'] ?? null;
-//
-//    echo $renderer->renderFile('/update.pug', ['catId' => $catId]);
-//});
 
+// UPDATE ROUTES
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
     parse_str(file_get_contents('php://input'), $_PATCH);
@@ -387,11 +379,11 @@ post("/cats/image", function() use($pdo, $userId){
     $oldCarImg = $stmt->fetchColumn();
 
     if($oldCarImg){
-        echo "Error: you aint got purrmission.. or your car is meowssing";
+        echo "Error: you dont have purrmission.. or your cat is meowssing";
     }
 
     $newImgPath = "posts/".uniqid('cat_').".".$ext;
-    if(!move_uploaded_file($carFile['tmp_name'], __DIR__-"/".$newImgPath)) {
+    if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
         echo "failed uploading file :((";
         return;
     }

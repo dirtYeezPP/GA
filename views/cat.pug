@@ -27,13 +27,13 @@ block content
                         label(for="breed") Change breed?
                         input(type="text" id="breed" value=$catPost['breed'])
                     |
-                    button(type="button" onclick="updateCarInfo()") Save Detais
+                    button(type="button" onclick="updateCarInfo()") Save Details
                 |
                 div.editSection
                     h4 change the picture?
                     |
                     div
-                        label(for="img") Change image? or keep this one (leave blank)
+                        label(for="img") Change image? or keep this one?
                         input(type="file" id="img" accept="image/*")
                     |
                     button(onclick="updateCarImage()") Save changes!

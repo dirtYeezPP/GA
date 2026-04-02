@@ -3,12 +3,12 @@ extends ./layout.pug
 block content
     h3 PLEASE REGISTER
     form(action="/GA/auth/register", method="Post")
-        label(for="usernam") username
-        input(id="usernam", name="username", type="text", placeholder="username?")
-        label(for="emal") email
-        input(id="emal", name="email", type="text", placeholder="email?")
-        label(for="paswr") password
-        input(id="paswr", name="password", type="password", placeholder="password?")
+        label(for="username") username
+        input(id="username", name="username", type="text", placeholder="username?")
+        label(for="email") email
+        input(id="email", name="email", type="text", placeholder="email?")
+        label(for="password") password
+        input(id="password", name="password", type="password", placeholder="password?")
         input(type="submit", value="register")
 
 block feet

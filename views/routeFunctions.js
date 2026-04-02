@@ -17,8 +17,8 @@ async function updateCarInfo(){
         alert("uh oh.. you bum" + await response.text());
         return;
     }
-    alert("car is updated")
-
+    //alert("car is updated")
+    window.location.reload();
 }
 
 
@@ -82,7 +82,7 @@ async function deleteCar(id) {
 
 
 async function submitProfileChanges(){
-    const password = document.querySelector("#paswr").value;
+    const password = document.querySelector("#password").value;
     const email = document.querySelector("#uEmail").value;
     const name = document.querySelector("#uName").value;
 
@@ -137,5 +137,6 @@ async function deleteProfile(){
     } catch (error) {
         console.error("Network error:", error);
     }
+    window.location.reload();
 }
 

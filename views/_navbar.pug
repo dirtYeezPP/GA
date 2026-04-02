@@ -4,15 +4,15 @@
         img.logo(src="/GA/images/logo.png" alt="logotyp")
     button.burgerMenu(id="burgerMenu" aria-label="Toggle Navigation") ☰
 
-    .navDesktopItems(id="desktopItems")
-        .navLinks(id="navLinks")
+    .navDesktopItems(id="desktop-items")
+        .navLinks(id="nav-links")
             each $item in $navItems
                 a(href=$item['url'])= $item['text']
-        .navAuth(id="navAuth")
+        .navAuth(id="nav-auth")
             if($isLoggedIn)
-                a(href="/GA/cats/create") Create Post
+                a(href="/GA/cats/create") Post
                 a(href="/GA/profile") Profile
-                a(href="/GA/auth/logout") LogTFout
+                a(href="/GA/auth/logout") Log out
             else
                 a.btn(href="/GA/auth/register") Register
                 a.btn.btn-primary(href="/GA/auth/login") Login
