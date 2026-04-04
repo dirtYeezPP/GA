@@ -45,7 +45,7 @@ $renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId'
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
-    echo $renderer->renderFile('/main.pug', ['currentPage' => 'home']);
+    echo $renderer->renderFile('/homepage.pug', ['currentPage' => 'home']);
 });
 
 get("/cats/contact", function () use ($renderer) {
@@ -286,7 +286,7 @@ get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
     $stmt->execute(['id' => $id]);
     $catPost = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    var_dump($catPost);
+    //var_dump($catPost);
 
     if(!$catPost){
         echo "no post";

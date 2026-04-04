@@ -1,15 +1,22 @@
 extends ./layout.pug
 
 block content
-    h3 PLEASE REGISTER
-    form(action="/GA/auth/register", method="Post")
-        label(for="username") username
-        input(id="username", name="username", type="text", placeholder="username?")
-        label(for="email") email
-        input(id="email", name="email", type="text", placeholder="email?")
-        label(for="password") password
-        input(id="password", name="password", type="password", placeholder="password?")
-        input(type="submit", value="register")
+    h3 REGISTER PAGE
+    h5 We are pleased that you'll join our meowult
+    |
+    div.registerSection
+        form(action="/GA/auth/register", method="Post")
+            div
+                label(for="username") username
+                input(id="username", name="username", type="text", placeholder="username?")
+            div
+                label(for="email") email
+                input(id="email", name="email", type="text", placeholder="email?")
+            div
+                label(for="password") password
+                input(id="password", name="password", type="password", placeholder="password?")
+            div
+                input(type="submit", value="register")
 
 block feet
     h4 WE THANK YOU
