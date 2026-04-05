@@ -1,19 +1,12 @@
 <?php
 
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL);
-
-require("router.php");
-require("src/Response.php");
+require_once 'router.php';
+require_once 'src/Response.php';
 require_once 'src/connect.php';
 require_once 'src/funHelper.php';
 global $pdo;
 
 session_start();
-
-//SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
-//TODO check status code thing on delete and update profile routes (net in web)n
 
 // MAKE IT COOL LATER
 //TODO fix design and such in css.

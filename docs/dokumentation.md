@@ -1,0 +1,16 @@
+# KOD DOKUMENTATION FÖR GYMNASIEARBETE 
+Polina Panina TE23IT
+
+## BACKEND
+### ROUTES
+````php
+
+````
+
+### SESSIONS OCH LOGIN 
+
+### DATABAS 
+
+## FRONTEND 
+### PHUG 
+### JAVASCRIPT 
