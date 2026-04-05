@@ -12,6 +12,9 @@ session_start();
 //TODO fix design and such in css.
 //TODO fix media query for bigger screens, work in mobile first from now on.
 
+//TODO finish writing documentation
+//TODO review and edit documentation
+
 $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => PATH_PREFIX],
     ['id' => 'cars', 'text' => 'Cats', 'url' => PATH_PREFIX."cats"],
@@ -61,7 +64,7 @@ post("/auth/register", function () use ($pdo){
     $emailExists = $checkStmt->fetchColumn()>0;
 
     if($emailExists){
-        echo "ts email is used vro..";
+        sendErrorPath('ERR_INVALID_DATA');
         exit;
     }
 
@@ -216,7 +219,6 @@ get("/cats", function() use ($renderer, $pdo) {
          'cats'=>$cats,
          'currentPage' => 'cars'
     ]);
-    //var_dump("cats", $cats);
 });
 
 //CREATE ROUTE
@@ -385,7 +387,5 @@ post("/cats/image", function() use($pdo, $userId){
 });
 
 get('/errors/$errorCode', function($errorCode) use($renderer){
-
     echo $renderer->renderFile('/errors.pug', ['errorCode' => $errorCode]);
-
 });
