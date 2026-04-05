@@ -1,4 +1,9 @@
 
+async function handleResError(response){
+    const json = await response.json();
+    window.location = json.errorPath;
+}
+
 // UPDATE ROUTE SCRIPT
 async function updateCarInfo(){
     console.log("UPDATE ATTEMPT.....");
@@ -14,7 +19,7 @@ async function updateCarInfo(){
     const response = await fetch(`/GA/cats`, {method:"PATCH", body:data, headers:{"Content-type":"application/x-www-form-urlencoded"}, redirect:"manual"});
 
     if(!response.ok){
-        alert("uh oh.. you bum" + await response.text());
+        await handleResError(response)
         return;
     }
     //alert("car is updated")
@@ -36,7 +41,7 @@ async function updateCarImage(){
 
     const response = await fetch(`/GA/cats/image`, {method:"POST", body:data});
     if(!response.ok){
-        alert("uh oh.. you bum" + await response.text());
+        await handleResError(response)
         return;
     }
 
@@ -63,18 +68,20 @@ async function deleteCar(id) {
             headers: {"Content-type": "application/x-www-form-urlencoded"}
         });
 
-        if (response.ok) {
-            // 1. Find the card in the HTML
-            const cardToRemove = document.getElementById(`catCard-${id}`);
-
-            // 2. Make it disappear!
-            if (cardToRemove) {
-                cardToRemove.remove();
-                console.log(`Cat ${id} has left the building.`);
-            }
-        } else {
-            alert("Delete failed on the server.");
+        if (!response.ok) {
+            await handleResError(response)
+            return;
         }
+
+        // 1. Find the card in the HTML
+        const cardToRemove = document.getElementById(`catCard-${id}`);
+
+        // 2. Make it disappear!
+        if (cardToRemove) {
+            cardToRemove.remove();
+            console.log(`Cat ${id} has left the building.`);
+        }
+
     } catch (error) {
         console.error("Network error:", error);
     }
@@ -104,12 +111,13 @@ async function submitProfileChanges(){
             redirect: "manual"
         });
 
-        if(response.ok){
-            const jRes = await response.json();
-            window.location.href = jRes.Loco;
-        } else {
-            console.error("server refused this action");
+        if (!response.ok) {
+            await handleResError(response)
+            return;
         }
+        const jRes = await response.json();
+        window.location.href = jRes.Loco;
+
     } catch (error) {
         console.error("Network error:", error);
     }
@@ -128,12 +136,13 @@ async function deleteProfile(){
             redirect: "manual"
         });
 
-        if(response.ok){
-            const jRes = await response.json();
-            window.location.href = jRes.Loco;
-        } else {
-            console.error("server refused this action");
+        if (!response.ok) {
+            await handleResError(response);
+            return;
         }
+        const jRes = await response.json();
+        window.location.href = jRes.Loco;
+
     } catch (error) {
         console.error("Network error:", error);
     }

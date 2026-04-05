@@ -4,7 +4,7 @@
         img.logo(src="/GA/images/logo.png" alt="logotyp")
     button.burgerMenu(id="burgerMenu" aria-label="Toggle Navigation") ☰
 
-    .navDesktopItems(id="desktop-items")
+    .navDesktopItems(id="desktop-items" style="font-size:1.7rem;")
         .navLinks(id="nav-links")
             each $item in $navItems
                 a(href=$item['url'])= $item['text']

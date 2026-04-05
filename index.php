@@ -1,8 +1,8 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+//error_reporting(E_ALL);
 
 require("router.php");
 require("src/Response.php");
@@ -14,12 +14,8 @@ session_start();
 
 //SOMEWHERE IN THE MIDDLE OF FUNCTIONALITY AND COOLNESS
 //TODO check status code thing on delete and update profile routes (net in web)n
-//TODO add userid to cats table
-//TODO make join thingy for the view of that users only, posts.
 
 // MAKE IT COOL LATER
-//TODO change update route into either a popup or an existent form on "single-product" view.
-//TODO update maybe could replace the cat picture.. just ideas.
 //TODO fix design and such in css.
 //TODO fix media query for bigger screens, work in mobile first from now on.
 
@@ -27,7 +23,6 @@ $navItems = [
     ['id' => 'home', 'text' => 'Home', 'url' => PATH_PREFIX],
     ['id' => 'cars', 'text' => 'Cats', 'url' => PATH_PREFIX."cats"],
     ['id' => 'contact', 'text' => 'Contact', 'url' => PATH_PREFIX."cats/contact"],
-    //['id' => 'createCar', 'text' => 'Create', 'url' => '/GA/cats/create']
 ];
 
 $isLoggedIn = isset($_SESSION['id']);
@@ -41,7 +36,7 @@ $renderer = new \Phug\Renderer([
 ]);
 global $renderer;
 $renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX]);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX, 'errors' => ERRORS]);
 
 //HOME ROUTE
 get("/", function () use ($renderer) {
@@ -106,7 +101,7 @@ post("/auth/login", function() use ($pdo) {
         redirect("cats");
 
     } else {
-        echo "invalid email or password. Please try again or register.";
+        redirect("errors/ERR_INCORRECT_DATA");
     }
 });
 
@@ -171,9 +166,8 @@ patch("/profile", function() use($pdo){
     $user = $stmt->fetch();
 
     if(!$user || !password_verify($givenPassword, $user['hashedPassword'])){
-        http_response_code(401);
-        echo "incorrect password.. bum";
-        exit;
+        sendErrorPath('ERR_INCORRECT_DATA');
+        return;
     }
 
     $allowedFields = ['name', 'email'];
@@ -225,10 +219,6 @@ get("/cats", function() use ($renderer, $pdo) {
         ];
     };
 
-    if (empty($cats)) {
-        die("Database returned zero cats. The array is empty!");
-    }
-
     echo $renderer->renderFile('/cats.pug', [
          'cats'=>$cats,
          'currentPage' => 'cars'
@@ -249,7 +239,8 @@ post("/cats", function () use ($pdo, $userId){
     loginRequired();
 
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
-        die("file no upload yes");
+        sendErrorPath('ERR_UPLOAD_FAIL');
+        return;
     }
 
     $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
@@ -257,13 +248,15 @@ post("/cats", function () use ($pdo, $userId){
     $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
 
     if(!in_array($fileEx, $allowedExes)) {
-        die("invalid file extension, its not allowed you bum");
+        sendErrorPath('ERR_INVALID_DATA');
+        return;
     }
 
     $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
     if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
-        die("failed uploading file :((");
+        sendErrorPath('ERR_UPLOAD_FAIL');
+        return;
     }
 
     $requested = [
@@ -289,7 +282,7 @@ get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
     //var_dump($catPost);
 
     if(!$catPost){
-        echo "no post";
+        sendErrorPath('ERR_NOT_FOUND');
         return;
     }
 
@@ -354,7 +347,7 @@ patch("/cats", function () use($pdo, $userId) {
         }
     }
 
-    header("Loco: /cats");
+    header("Loco: /cats"); //GÖR PROLLY INGENTING!!!!
     echo "sauces";
 });
 
@@ -364,13 +357,13 @@ post("/cats/image", function() use($pdo, $userId){
     $carFile = $_FILES['img'] ?? null;
 
     if(!$id || !$carFile || $carFile['error'] !== UPLOAD_ERR_OK) {
-        echo "ERROR: Bad request or meowssing file..";
+        sendErrorPath('ERR_MISSING_DATA');
         return;
     }
 
     $ext = strtolower(pathinfo($carFile['name'], PATHINFO_EXTENSION));
     if(!in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
-        echo "invalid file extension, its not allowed to upload you dummy";
+        sendErrorPath('ERR_INVALID_DATA');
         return;
     }
 
@@ -379,12 +372,13 @@ post("/cats/image", function() use($pdo, $userId){
     $oldCarImg = $stmt->fetchColumn();
 
     if($oldCarImg){
-        echo "Error: you dont have purrmission.. or your cat is meowssing";
+        sendErrorPath('ERR_MISSING_DATA');
+        return;
     }
 
     $newImgPath = "posts/".uniqid('cat_').".".$ext;
     if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
-        echo "failed uploading file :((";
+        sendErrorPath('ERR_UPLOAD_FAIL');
         return;
     }
 
@@ -394,5 +388,11 @@ post("/cats/image", function() use($pdo, $userId){
     }
 
     echo "picture uploaded saucely";
+
+});
+
+get('/errors/$errorCode', function($errorCode) use($renderer){
+
+    echo $renderer->renderFile('/errors.pug', ['errorCode' => $errorCode]);
 
 });

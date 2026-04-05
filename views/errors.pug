@@ -1,0 +1,9 @@
+extends ./layout.pug
+
+block content
+    p= $errorCode
+    each $error, $index in $errors
+        if($index == $errorCode)
+            p= $error['status']
+            p= $error['message']
+            a(href=$pathPrefix."cats") GO TO CATS

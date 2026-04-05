@@ -50,12 +50,8 @@
 }
 
 body{ text-align: center; }
-h1, h2, h3, h4, h5, h6{ }
 h1{ font-size: 2.8rem; }
-h3{ font-size: 2.2rem; }
-h4{ font-size: 2rem; }
-h5{ font-size: 1.7rem; }
-a{ text-decoration: none; font-size: 1.7rem; }
+a{ text-decoration: none;}
 
 .navContainer{
     display: flex;

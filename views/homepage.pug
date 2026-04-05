@@ -2,9 +2,13 @@ extends ./layout.pug
 
 block content
     h1 HELLO AND WELCOME TO THIS CAT PAGE
-
+    |
+    .homeLink(style="display:flex; align-items:center;gap:4px;")
+        p here you see Lucinator, if you want to know more about the creator.. click
+        a(href=$pathPrefix."cats/contact") contact!
+    |
     .imgBoxMain(style="width:50%;height:90%; aspect-ratio:1/1;")
-        img(src="./images/catchilling.jpg", alt = "the cat is chilling" style="width:100%;height:100%;object-fit:cover;")
+        img(src="./images/Lucinatorr.jpg", alt = "the cat is chilling" style="width:100%;height:100%;object-fit:cover;")
 
 block feet
     h4 this is the bottom of the page of the cat page
