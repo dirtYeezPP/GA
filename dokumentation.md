@@ -161,9 +161,8 @@ patch("/cats", function () use($pdo, $userId) {
         $stmt->execute($sqlPramValues);
 
         if($stmt->rowCount() === 0){
-            http_response_code(403);
-            echo "Error: The audacity you motherfucker! you dont have the purrmission for this!";
-            return;
+            sendErrorPath('ERR_FORBIDDEN');
+            return
         }
     }
 
@@ -176,6 +175,8 @@ Id ligger i en hidden field (vilket syns genom inspection mode på webbsidan) oc
 Informationen kontrolleras (om ett fält är tomt) och lagras sedan i '\$sqlPramValues' (typon är med flit). 
 Om '\$sqlPramValues' är större/längre än 1 OCH det finns ett id inom variabeln, påbörjas strängen för uppdateringen av information inom databasen.
 (*En clause ser ut på följande vis: 'name = "George"'*) 
+
+
 '\$field' definierar själva namnet 
 '\$value' definierar dess värde (no way)
 

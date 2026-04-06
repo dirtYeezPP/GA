@@ -323,8 +323,7 @@ patch("/cats", function () use($pdo, $userId) {
         $stmt->execute($sqlPramValues);
 
         if($stmt->rowCount() === 0){
-            http_response_code(403);
-            echo "Error: The audacity you motherfucker! you dont have the purrmission for this!";
+            sendErrorPath('ERR_FORBIDDEN');
             return;
         }
     }
