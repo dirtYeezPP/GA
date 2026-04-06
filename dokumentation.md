@@ -56,7 +56,8 @@ Listan skickas vidare till filen 'cats.pug' för rendering av vy med information
 *(För information om 'currentPage' se)* <br>
 Varje route (av annan typ än get) som kräver interaktion med klient-sidan börjar med en GET-route av vy-rendering (till exempel POST). 
 
-#### 1.1b POST 
+#### 1.1b POST
+
 ````php
 get("/cats/create", function () use ($renderer){
     loginRequired();
@@ -79,7 +80,7 @@ post("/cats", function () use ($pdo, $userId){
 
     $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
-    if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
+    if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."dokumentation.md/".$uniqueFileName))) {
         redirect("errors/ERR_UPLOAD_FAIL");
     }
 
