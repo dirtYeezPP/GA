@@ -130,9 +130,9 @@ Raden för bilder inom tabellen lagrar en väg (path) till uppladdad bild (dvs e
 Unlink används därför för borttagning av bilden från 'posts' för att minska onödig platsupptagning.
 
 #### 1.1d PATCH / UPDATE ROUTE 
-Uppdatering av posts sker separat gällande text och bildhantering. 
+Uppdatering av posts sker separat gällande text (PATCH) och bildhantering (POST). 
 ###### PATCH 
-
+För att ändra namn eller ras (befinnande text-information) på katten/posten används metoden PATCH.
 ````php
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
@@ -171,7 +171,16 @@ patch("/cats", function () use($pdo, $userId) {
     echo "sauces";
 });
 ````
-f
+Likt DELETE behöver $_PATCH definieras för att möjliggöra parsing av inskickad information genom javascript (*se*).
+Id ligger i en hidden field (vilket syns genom inspection mode på webbsidan) och skickas in tillsammans med inskriva fält. 
+Informationen kontrolleras (om ett fält är tomt) och lagras sedan i '\$sqlPramValues' (typon är med flit). 
+Om '\$sqlPramValues' är större/längre än 1 OCH det finns ett id inom variabeln, påbörjas strängen för uppdateringen av information inom databasen.
+(*En clause ser ut på följande vis: 'name = "George"'*) 
+'\$field' definierar själva namnet 
+'\$value' definierar dess värde (no way)
+
+
+sql field ska vara parametern field 
 ````php
 post("/cats/image", function() use($pdo, $userId){
     loginRequired();
