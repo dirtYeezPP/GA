@@ -2,7 +2,7 @@
 Polina Panina TE23IT
 
 #### BACKGROUND 
-Dokumentationen beskriver verktyg och funktioner använda i projektet "NekoToru" (Gymnasiearbete), byggt på: PHP (phprouter), PHUG (pug för php), Javascript, och SQLite (PDO). 
+Dokumentationen beskriver verktyg och funktioner använda i projektet "NekoToru" (Gymnasiearbete), byggt på: PHP (phprouter), PHUG (pug för php), Javascript, och SQLite (PDO).
 
 ## 1. BACKEND
 ### 1.1 ROUTES
@@ -14,7 +14,7 @@ get("/auth/register", function () use ($renderer) {
     echo $renderer->renderFile('/register.pug');
 });
 ````
-'\$renderer' definieras utifrån composer (vendor mappen, som även innehåller PHUG), Variabeln använder sig av filerna i mappen 'views' och definierar php som språk för variabler och funktioner inom pug-filerna, enligt nedanstående kod: 
+'\$renderer' definieras utifrån composer (vendor mappen, som även innehåller PHUG). Variabeln använder sig av filerna i mappen 'views' och definierar php som språk för variabel- och funktion hantering inom pug-filerna, enligt nedanstående kod: 
 ````php
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
@@ -22,7 +22,7 @@ $renderer = new \Phug\Renderer([
     'expressionLanguage' => 'php'
 ]);
 ````
-(för använding av php-variabler inom pug, se )
+*(för använding av php-variabler inom pug, se )*
 
 ###### ROUTE FÖR UPPVISNING AV ALLA POSTS  
 ````php
@@ -59,15 +59,14 @@ Varje route (av annan typ än get) som kräver interaktion med klient-sidan bör
 #### 1.1b POST 
 ````php
 get("/cats/create", function () use ($renderer){
-    loginRequired(); 
+    loginRequired();
     echo $renderer->renderFile('/create.pug', ['currentPage' => 'createCar']);
 });
 
 post("/cats", function () use ($pdo, $userId){
     loginRequired();
-    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
-        sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
+    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { 
+        redirect("errors/ERR_UPLOAD_FAIL");
     }
 
     $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
@@ -75,15 +74,13 @@ post("/cats", function () use ($pdo, $userId){
     $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
 
     if(!in_array($fileEx, $allowedExes)) {
-        sendErrorPath('ERR_INVALID_DATA');
-        return;
+        redirect("errors/ERR_INVALID_DATA");
     }
 
     $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
     if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
-        sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
+        redirect("errors/ERR_UPLOAD_FAIL");
     }
 
     $requested = [
@@ -98,22 +95,15 @@ post("/cats", function () use ($pdo, $userId){
     redirect("cats");
 });
 ````
-*För information om 'loginRequired se,* <br>
-*För information om 'sendErrorPath', se* <br>
-Rendering av formen genom vilken en post skapas sker genom en GET-route (dvs '/cats/create').
+*För information om 'loginRequired se,, användaren måste vara inloggad för tillgång till detta* <br>
+*För information om 'sendErrorPath', se, denna beter sig olika eftersom POST data i detta fall inte skickas mha js* <br>
+Rendering av formen genom vilken en post skapas sker genom en GET-route (dvs '/cats/create'). Om ingen bild laddas upp sker en omdirigering till '/errors' *(se )* där felet står både i URL:en och på webbsidan.
+För säkerhet/skydd definieras en lista med 'tillåtna extensions' av filer (i detta fall skall det vara bilder). 
+Den uppladdade filens extension kontrolleras genom '\$allowedExes' listan och efter godkännande får filen ett unikt namn genom bl.a. 'uniqid' funktionen. 
+Den uppladdade filen är temporärt gömt lagrad och behöver flyttas till "posts" mappen, if-satsen med "move_uploaded_file" kollar därmed om omflyttningen misslyckas (vilket leder till ännu en omdirigering). 
+'\$requested' variabeln tar in POST informationen inskriven och skickad av ett POST formulär på klient-sidan, efter vilket informationen lagras i 'cattos' databasen. <br>
+*'\$\_POST är en superglobal (inbyggd variabel) som innehåller listor av variables intagna från HTTP POST metoden*
 
-
-
-
-Denna post route tar in information från en form på webbsidan (med method post), efter vilket servern får inskriven information i fälten.
-Metoden POST används för att "Lägga upp" något på webbsidan, därför renderas först en vy genom GET där formen för post ligger. Den angivna vägen (eller path:en) matchar den i *1.1a VY FÖR ALLA POSTS* eftersom metoden är annorlunda och samma path kan då återanvändas. 
-* För säkerhetsskull deklareras först "tillåtna" bild-extensions för uppladdning ($allowedExes).
-* Kontrollen av extensions sker sedan i första if-satsen då uppladdat extension söks i $allowedExes listan.
-* Ännu ett säkerhetstillägg är ett unikt genererat namn för varje post med uniquid. 
-* $requested listan bygger på informationen ifrån formen och PDO används för att sätta in ett nytt värde i tabellen "cattos" tillsammans med ett userId (se *1.1e SESSIONS OCH LOGIN*).
-
-Det är standard/vanligare att ha med query strings i eller meddelanden i form av "?title=Query_string&action=edit" eller där antingen ett felmeddelande eller success meddelande visas upp, däremot har eleven valt att inte inkludera det i detta projekt. 
-post data blir parseat och intaget i POST superglobalen. 
 #### 1.1c DELETE 
 ````php
 delete("/cats", function () use ($pdo) {
@@ -128,19 +118,20 @@ delete("/cats", function () use ($pdo) {
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
-
 });
 ````
-Delete har ingen rendering av vy eftersom detta utgörs av en knapp. Till skillnad från POST metoden är informationen skickad genom javascript fetch (se *2.2 JAVASCRIPT i FRONTEND section*). 
-DELETE superglobalen måste deklareras för att servern ska ta in informationen skickad från javascript i form av en body, detta sätts igång genom en knapp i "/cats" (eller "/cats/$id").
-Första raden gör alltså följande:
-* parse_str --> tar URL-encoded sträng och konverterar den till PHP variabler (delete array)
-* php://input --> tar rå och oprocesserad data från HTTP requesten.
-Sedan används $pdo återigen för att kunna ändra inom SQL databasen "cattos". Efter att rätt id hittats, hämtas annan data från posten. 
-* unlink --> en funktion som tar bort en fil specifierad utifrån dens path, som tas ifrån databasen. 
-* Sedan raderas posten genom PDO på rätt plats (id). 
+Radering av posts sker genom en 'DELETE'-knapp som skickar data genom användning av javascript, en separat GET för vy-rendering behövs alltså inte *(se)*. <br>
+Eftersom '\$\_DELETE' inte är en inbyggd variabel (och inte är tillåten som metod i html forms), måste denna deklareras i förhand. 
+Informationen (i form av en body, skickad ifrån javascript genom en fetch, *se*), analyseras (parseas) för att konverteras till PHP variabler. 
+Servern tar emot ett ID som motsvarar en påklickad post (id:et syns i inspection mode (hidden form field) och även i 'request' delen inom 'Network' eftersom webbsidan körs på HTTP), som finns i 'cattos' tabellen. 
+När första matchningen av ID:et hittas, hämtas hela kolumnen (dvs entryn för den specifika katten) för att hantera radering av bilden. 
+Raden för bilder inom tabellen lagrar en väg (path) till uppladdad bild (dvs exempelvis '/posts/*bildnamn*'), eftersom bilder lagras i mappen 'posts'. 
+Unlink används därför för borttagning av bilden från 'posts' för att minska onödig platsupptagning.
 
 #### 1.1d PATCH / UPDATE ROUTE 
+Uppdatering av posts sker separat gällande text och bildhantering. 
+###### PATCH 
+
 ````php
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
@@ -178,7 +169,9 @@ patch("/cats", function () use($pdo, $userId) {
     header("Loco: /cats"); //GÖR PROLLY INGENTING!!!!
     echo "sauces";
 });
-
+````
+f
+````php
 post("/cats/image", function() use($pdo, $userId){
     loginRequired();
     $id = $_POST['id'] ?? null;
@@ -219,6 +212,7 @@ post("/cats/image", function() use($pdo, $userId){
 
 });
 ````
+
 
 ### 1.1e SESSIONS, LOGIN, & PROFILE 
 ###### SESSIONS

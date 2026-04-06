@@ -106,7 +106,6 @@ get("/auth/logout", function () use ($renderer) {
     $_SESSION = [];
 
     session_destroy();
-
     redirect("cats");
 });
 
@@ -222,16 +221,12 @@ get("/cats", function() use ($renderer, $pdo) {
 
 //CREATE ROUTE
 get("/cats/create", function () use ($renderer){
-
     loginRequired();
-
     echo $renderer->renderFile('/create.pug', ['currentPage' => 'createCar']);
 });
 
 post("/cats", function () use ($pdo, $userId){
-
     loginRequired();
-
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
         redirect("errors/ERR_UPLOAD_FAIL");
     }
@@ -265,12 +260,9 @@ post("/cats", function () use ($pdo, $userId){
 
 // ONE PRODUCT VIEW
 get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
-
     $stmt = $pdo->prepare("SELECT * FROM cattos WHERE id=:id");
     $stmt->execute(['id' => $id]);
     $catPost = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    //var_dump($catPost);
 
     if(!$catPost){
         sendErrorPath('ERR_NOT_FOUND');
@@ -283,12 +275,12 @@ get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
     }
 
     echo $renderer->renderFile('/cat.pug', ['catPost' => $catPost, 'isOwner' => $isOwner, 'userId' => $userId]);
-
 });
 
 
 // DELETE THING
 delete("/cats", function () use ($pdo) {
+    //loginRequired();
     parse_str(file_get_contents("php://input"), $_DELETE);
     $catId = $_DELETE['id'];
 
@@ -300,7 +292,6 @@ delete("/cats", function () use ($pdo) {
     $pdo->prepare("DELETE FROM cattos WHERE id=?")->execute([$catId]);
 
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
-
 });
 
 
