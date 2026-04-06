@@ -114,7 +114,7 @@ Hanteringen av filuppladdning har två kontroller för säkerhet som definieras 
 * '\$allowedMimes' utgör en lista av tillåtna MIMES (MultiPurpose Internet Mail Extensions), vilket kollar file content. 
 
 Den uppladdade filens mime och extension kontrolleras innan vidare hantering. Efter godkännande anges ett unikt namn, genom bl.a. funktionen 'uniqid'. 
-När filer laddas upp är de temporärt gömt lagrade och behöver flyttas till 'posts' mappen i detta fall för att sparas. Sista if-satsen kontrollerar 
+När filer laddas upp är de temporärt gömt lagrad och behöver flyttas till 'posts' mappen, i detta fall, för att sparas. Sista if-satsen kontrollerar 
 om omflyttningen av filen misslyckats och resulterar då i en omdirigering till error page. 
  
 '\$requested' variabeln tar in POST informationen inskriven och skickad av ett POST formulär på klient-sidan, efter vilket informationen lagras i 'cattos' databasen. <br>
@@ -261,6 +261,9 @@ post("/cats/image", function() use($pdo, $userId){
 (*Anledningen till att uppdateringen av en post sker via två separata routes finns i*) 
 Liksom i 'create' routen kontrolleras att filen finns och att den inte är av karaktär med otillåten extension eller MIME, 
 (*se 1.1b POST*). <br> 
+
+Inom denna route används en try/catch statement som förebygger att webbsidan helt och hållet tappar vettet vid en plötslig händelse. 
+
 
 
 
