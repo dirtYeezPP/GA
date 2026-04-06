@@ -2,6 +2,7 @@
     "require": {
         "phug/phug": "^1.13",
       "ext-pdo": "*",
-      "ext-json": "*"
+      "ext-json": "*",
+      "ext-fileinfo": "*"
     }
 }

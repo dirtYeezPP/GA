@@ -22,7 +22,7 @@ $renderer = new \Phug\Renderer([
     'expressionLanguage' => 'php'
 ]);
 ````
-*(för använding av php-variabler inom pug, se )*
+*(för använding av php-variabler inom pug, se 2.1c INTAGNA VARIABLER I PHUG)*
 
 ###### ROUTE FÖR UPPVISNING AV ALLA POSTS  
 ````php
@@ -66,13 +66,23 @@ get("/cats/create", function () use ($renderer){
 
 post("/cats", function () use ($pdo, $userId){
     loginRequired();
-    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { 
+    if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
         redirect("errors/ERR_UPLOAD_FAIL");
     }
 
     $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
     $fileName = $_FILES['img']['name'];
+    $tmpName = $_FILES['img']['tmp_name'];
     $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $tmpName);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if(!in_array($mimeType, $allowedMimes)) {
+        redirect("errors/ERR_INVALID_DATA");
+    }
 
     if(!in_array($fileEx, $allowedExes)) {
         redirect("errors/ERR_INVALID_DATA");
@@ -80,7 +90,7 @@ post("/cats", function () use ($pdo, $userId){
 
     $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
-    if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."dokumentation.md/".$uniqueFileName))) {
+    if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
         redirect("errors/ERR_UPLOAD_FAIL");
     }
 
@@ -99,9 +109,14 @@ post("/cats", function () use ($pdo, $userId){
 *För information om 'loginRequired se,, användaren måste vara inloggad för tillgång till detta* <br>
 *För information om 'sendErrorPath', se, denna beter sig olika eftersom POST data i detta fall inte skickas mha js* <br>
 Rendering av formen genom vilken en post skapas sker genom en GET-route (dvs '/cats/create'). Om ingen bild laddas upp sker en omdirigering till '/errors' *(se )* där felet står både i URL:en och på webbsidan.
-För säkerhet/skydd definieras en lista med 'tillåtna extensions' av filer (i detta fall skall det vara bilder). 
-Den uppladdade filens extension kontrolleras genom '\$allowedExes' listan och efter godkännande får filen ett unikt namn genom bl.a. 'uniqid' funktionen. 
-Den uppladdade filen är temporärt gömt lagrad och behöver flyttas till "posts" mappen, if-satsen med "move_uploaded_file" kollar därmed om omflyttningen misslyckas (vilket leder till ännu en omdirigering). 
+Hanteringen av filuppladdning har två kontroller för säkerhet som definieras av '\$allowedExes' och '\$allowedMimes'.
+* '\$allowedExes' utgör en lista av tillåtna fil-extensions (exempelvis .jpg). 
+* '\$allowedMimes' utgör en lista av tillåtna MIMES (MultiPurpose Internet Mail Extensions), vilket kollar file content. 
+
+Den uppladdade filens mime och extension kontrolleras innan vidare hantering. Efter godkännande anges ett unikt namn, genom bl.a. funktionen 'uniqid'. 
+När filer laddas upp är de temporärt gömt lagrade och behöver flyttas till 'posts' mappen i detta fall för att sparas. Sista if-satsen kontrollerar 
+om omflyttningen av filen misslyckats och resulterar då i en omdirigering till error page. 
+ 
 '\$requested' variabeln tar in POST informationen inskriven och skickad av ett POST formulär på klient-sidan, efter vilket informationen lagras i 'cattos' databasen. <br>
 *'\$\_POST är en superglobal (inbyggd variabel) som innehåller listor av variables intagna från HTTP POST metoden*
 
@@ -144,7 +159,7 @@ patch("/cats", function () use($pdo, $userId) {
     });
 
     if(count($sqlPramValues) > 1 && isset($sqlPramValues['id'])) {
-        $sql = "UPDATES cattos SET ";
+        $sql = "UPDATE cattos SET ";
         $setClauses = []; // clause is name = "luffy" can be called columnsToChange
 
         foreach($sqlPramValues as $field => $value) {
@@ -162,7 +177,7 @@ patch("/cats", function () use($pdo, $userId) {
 
         if($stmt->rowCount() === 0){
             sendErrorPath('ERR_FORBIDDEN');
-            return
+            return;
         }
     }
 
@@ -170,18 +185,21 @@ patch("/cats", function () use($pdo, $userId) {
     echo "sauces";
 });
 ````
-Likt DELETE behöver $_PATCH definieras för att möjliggöra parsing av inskickad information genom javascript (*se*).
-Id ligger i en hidden field (vilket syns genom inspection mode på webbsidan) och skickas in tillsammans med inskriva fält. 
-Informationen kontrolleras (om ett fält är tomt) och lagras sedan i '\$sqlPramValues' (typon är med flit). 
-Om '\$sqlPramValues' är större/längre än 1 OCH det finns ett id inom variabeln, påbörjas strängen för uppdateringen av information inom databasen.
-(*En clause ser ut på följande vis: 'name = "George"'*) 
+Likt DELETE behöver PATCH först definieras för att möjliggöra servern intag av inskickad data ifrån klient-sidan.
+'\$request' listan innehåller den parseade datan från \$_PATCH förfrågan av klient-sidan (dvs body från javascript).
+För att tillåta användaren att lämna form-fält tomma lagrar '\$sqlPramValues' endast ifylld data från '\$request'.
+Genom IF-satsen kontrolleras att ett ID är angivet och minst ett fält är ifyllt för en ändring. Foreach loopen 
+bygger i sin tur dynamiskt upp SQL strängen med clauses tagna utifrån '\$sqlPramValues'. 
+Implode funktionen gör om listan till en sträng med clauses (*en clause ser ut som följande: 'age = :age'*) och tillsätter komma emellan satserna.
+Är bara ett fält angivet får satsen inget komma efter sig. 
+För säkerhet måste både postens id OCH id:et av användaren som lagt upp bilden stämma överens med användaren som begärt uppläggs ändringen.
+Sista if-satsen kontrollerar att variabeln '\$stmt' har 0 rader, vilket skulle innebära att ingen information/fält var givet och resulterar i en redirect till error page. 
 
 
-'\$field' definierar själva namnet 
+'\$field' definierar namnet 
 '\$value' definierar dess värde (no way)
 
-
-sql field ska vara parametern field 
+###### POST 
 ````php
 post("/cats/image", function() use($pdo, $userId){
     loginRequired();
@@ -193,36 +211,57 @@ post("/cats/image", function() use($pdo, $userId){
         return;
     }
 
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $carFile['tmp_name']);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if(!in_array($mimeType, $allowedMimes)) {
+        sendErrorPath('ERR_INVALID_DATA');
+        return;
+    }
+
     $ext = strtolower(pathinfo($carFile['name'], PATHINFO_EXTENSION));
     if(!in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
         sendErrorPath('ERR_INVALID_DATA');
         return;
     }
 
-    $stmt = $pdo->prepare("SELECT img FROM cattos WHERE id=? AND postedById = ?");
-    $stmt->execute([$id, $userId]);
-    $oldCarImg = $stmt->fetchColumn();
+    try {
+        $stmt = $pdo->prepare("SELECT img FROM cattos WHERE id = ? AND postedById = ?");
+        $stmt->execute([$id, $userId]);
+        $oldCarImg = $stmt->fetchColumn();
 
-    if($oldCarImg){
-        sendErrorPath('ERR_MISSING_DATA');
-        return;
-    }
+        if(!$oldCarImg){
+            sendErrorPath('ERR_MISSING_DATA');
+            return;
+        }
 
-    $newImgPath = "posts/".uniqid('cat_').".".$ext;
-    if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
+        $newImgPath = "posts/".uniqid('cat_').".".$ext;
+        if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
+            sendErrorPath('ERR_UPLOAD_FAIL');
+            return;
+        }
+
+        $updateStmt = $pdo->prepare("UPDATE cattos SET img = ? WHERE id = ? AND postedById = ?");
+        $updateStmt->execute([$newImgPath, $id, $userId]);
+
+        if(!empty($oldCarImg) && file_exists(__DIR__."/".$oldCarImg)) {
+            unlink(__DIR__."/".$oldCarImg);
+        }
+
+        json_encode(['status'=>'sauce', 'message'=>'picture uploaded saucely']);
+
+    } catch (PDOException $e) {
         sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
     }
-
-    $pdo->prepare("UPDATE cattos SET img = :img WHERE id = :id")->execute([$newImgPath, $id]);
-    if(file_exists(__DIR__."/".$oldCarImg)){
-        unlink(__DIR__."/".$oldCarImg);
-    }
-
-    echo "picture uploaded saucely";
-
+    
 });
 ````
+(*Anledningen till att uppdateringen av en post sker via två separata routes finns i*) 
+Liksom i 'create' routen kontrolleras att filen finns och att den inte är av karaktär med otillåten extension eller MIME, 
+(*se 1.1b POST*). <br> 
+
 
 
 ### 1.1e SESSIONS, LOGIN, & PROFILE 
@@ -331,7 +370,7 @@ Databasen ligger i mappen "databas" (passande namn) där alla tabeller är synli
 
 #### 1.2b ERROR HANDLING 
 
-#### 1.2c PDO 
+#### 1.2c PDO (PHP OBJECT HANDLING)
 
 
 ## 2. FRONTEND 

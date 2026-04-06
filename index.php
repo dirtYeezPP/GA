@@ -233,7 +233,17 @@ post("/cats", function () use ($pdo, $userId){
 
     $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
     $fileName = $_FILES['img']['name'];
+    $tmpName = $_FILES['img']['tmp_name'];
     $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
+
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $tmpName);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if(!in_array($mimeType, $allowedMimes)) {
+        redirect("errors/ERR_INVALID_DATA");
+    }
 
     if(!in_array($fileEx, $allowedExes)) {
         redirect("errors/ERR_INVALID_DATA");
@@ -299,14 +309,14 @@ delete("/cats", function () use ($pdo) {
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
     parse_str(file_get_contents('php://input'), $_PATCH);
-    $request = ["id" => $_PATCH['id'], "name" => $_PATCH['name'], "breed" => $_PATCH['breed']];
+    $request = ["id" => $_PATCH['id'] ?? null, "name" => $_PATCH['name'] ?? null, "breed" => $_PATCH['breed'] ?? null];
 
     $sqlPramValues = array_filter($request, function ($value) {
         return !empty($value);
     });
 
     if(count($sqlPramValues) > 1 && isset($sqlPramValues['id'])) {
-        $sql = "UPDATES cattos SET ";
+        $sql = "UPDATE cattos SET ";
         $setClauses = []; // clause is name = "luffy" can be called columnsToChange
 
         foreach($sqlPramValues as $field => $value) {
@@ -342,33 +352,50 @@ post("/cats/image", function() use($pdo, $userId){
         return;
     }
 
+    $finfo = finfo_open(FILEINFO_MIME_TYPE);
+    $mimeType = finfo_file($finfo, $carFile['tmp_name']);
+    finfo_close($finfo);
+
+    $allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if(!in_array($mimeType, $allowedMimes)) {
+        sendErrorPath('ERR_INVALID_DATA');
+        return;
+    }
+
     $ext = strtolower(pathinfo($carFile['name'], PATHINFO_EXTENSION));
     if(!in_array($ext, ['png', 'jpg', 'jpeg', 'gif', 'webp'])) {
         sendErrorPath('ERR_INVALID_DATA');
         return;
     }
 
-    $stmt = $pdo->prepare("SELECT img FROM cattos WHERE id=? AND postedById = ?");
-    $stmt->execute([$id, $userId]);
-    $oldCarImg = $stmt->fetchColumn();
+    try {
+        $stmt = $pdo->prepare("SELECT img FROM cattos WHERE id = ? AND postedById = ?");
+        $stmt->execute([$id, $userId]);
+        $oldCarImg = $stmt->fetchColumn();
 
-    if($oldCarImg){
-        sendErrorPath('ERR_MISSING_DATA');
-        return;
-    }
+        if(!$oldCarImg){
+            sendErrorPath('ERR_MISSING_DATA');
+            return;
+        }
 
-    $newImgPath = "posts/".uniqid('cat_').".".$ext;
-    if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
+        $newImgPath = "posts/".uniqid('cat_').".".$ext;
+        if(!move_uploaded_file($carFile['tmp_name'], __DIR__."/".$newImgPath)) {
+            sendErrorPath('ERR_UPLOAD_FAIL');
+            return;
+        }
+
+        $updateStmt = $pdo->prepare("UPDATE cattos SET img = ? WHERE id = ? AND postedById = ?");
+        $updateStmt->execute([$newImgPath, $id, $userId]);
+
+        if(!empty($oldCarImg) && file_exists(__DIR__."/".$oldCarImg)) {
+            unlink(__DIR__."/".$oldCarImg);
+        }
+
+        json_encode(['status'=>'sauce', 'message'=>'picture uploaded saucely']);
+
+    } catch (PDOException $e) {
         sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
     }
-
-    $pdo->prepare("UPDATE cattos SET img = :img WHERE id = :id")->execute([$newImgPath, $id]);
-    if(file_exists(__DIR__."/".$oldCarImg)){
-        unlink(__DIR__."/".$oldCarImg);
-    }
-
-    echo "picture uploaded saucely";
 
 });
 
