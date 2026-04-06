@@ -1,7 +1,6 @@
 <?php
 
 $db = './databas/database.sqlite';
-
 $dsn = "sqlite:$db";
 
 try { 

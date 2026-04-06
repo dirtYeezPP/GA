@@ -14,8 +14,6 @@ function loginRequired() {
         exit;
     }
 }
-
-
 const ERRORS = [
     'ERR_MISSING_DATA' => ['status'=>400, 'message'=>'ERR: The data is meowssing.'],
     'ERR_INVALID_DATA' => ['status'=>400, 'message'=>'ERR: The data is invalid.'],

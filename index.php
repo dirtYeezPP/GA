@@ -64,8 +64,7 @@ post("/auth/register", function () use ($pdo){
     $emailExists = $checkStmt->fetchColumn()>0;
 
     if($emailExists){
-        sendErrorPath('ERR_INVALID_DATA');
-        exit;
+        redirect("errors/ERR_INCORRECT_DATA");
     }
 
     $sql = "INSERT INTO users (name, email, hashedPassword) VALUES ( :username, :email, :hashedPassword)";
@@ -234,8 +233,7 @@ post("/cats", function () use ($pdo, $userId){
     loginRequired();
 
     if(!isset($_FILES['img']) || $_FILES['img']['error'] != UPLOAD_ERR_OK) { //error fältet har inge, om allt är okej yes
-        sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
+        redirect("errors/ERR_UPLOAD_FAIL");
     }
 
     $allowedExes = ['png', 'jpg', 'jpeg', 'gif', 'webp'];
@@ -243,15 +241,13 @@ post("/cats", function () use ($pdo, $userId){
     $fileEx = strtolower(pathinfo($fileName, PATHINFO_EXTENSION)); //make it lowercase
 
     if(!in_array($fileEx, $allowedExes)) {
-        sendErrorPath('ERR_INVALID_DATA');
-        return;
+        redirect("errors/ERR_INVALID_DATA");
     }
 
     $uniqueFileName = "posts/".uniqid('cat_').".".$fileEx;
 
     if(!move_uploaded_file($_FILES['img']['tmp_name'], (__DIR__."/".$uniqueFileName))) {
-        sendErrorPath('ERR_UPLOAD_FAIL');
-        return;
+        redirect("errors/ERR_UPLOAD_FAIL");
     }
 
     $requested = [
