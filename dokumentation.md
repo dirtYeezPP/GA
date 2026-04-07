@@ -671,7 +671,47 @@ async function deleteCar(id) {
 ````
 Denna funktion ansvarar för radering av vald post/katt. 
 ID skickas med genom funktionen inom 'onclick' på knappen 'DELETE' (*se 2.1C INTAGNA VARIABLER I PHUG*). 
-Först verifieras att ett ID finns. 
-Efteråt skapas konstanten data, 
+Först verifieras att ett ID finns, efter vilket konstanten 'data' definieras av formateringen av ID:et (utifrån URLSearchParams, skickas ej som JSON). 
+Sedan används fetch API:n för att skicka DELETE metoden och tala med servern, await innebär att koden väntar tills ett svar är angivet. 
+Om allt är godkänt och 'response.ok' är 'true' letas kattens id upp för att raderas från sidan.
 
 #### 2.2b UPDATE MED PATCH OCH POST 
+Fetch för uppdateringen av posts bygger på samma principer som ovanstående sektionens kod, där skillnaden är att 
+konstanten data får tillägg av information genom 'append' och skickar sedan vidare allt i form av en body till servern.
+Vad gäller bildhantering ligger skillnaden i utbytet av URLSearchParams mot FormData. 
+````js
+async function updateCarImage(){
+    const id = document.querySelector("#id").value;
+    const img = document.querySelector("#img");
+
+    if(img.files.length === 0){
+        alert("dude select an image first :(")
+        return;
+    }
+    const data = new FormData();
+    data.append('id', id);
+    data.append('img', img.files[0]);
+
+    const response = await fetch(`/GA/cats/image`, {method:"POST", body:data});
+    if(!response.ok){
+        await handleResError(response)
+        return;
+    }
+
+    window.location.reload();
+}
+````
+I detta fall skickas id genom ett gömt form-fält (det syns i inspection mode, däremot behöver användaren inte skriva in det). 
+Uppdateringen eller sändning av text-data (såsom name, breed) sker via URLSearchParams eftersom det primärt hanterar bara text. 
+URLSearchParams formaterar data som kontinuerliga text-strängar, dvs 'application/x-www-form-urlencoded'. 
+FormData däremot, är gjort för hantering av 'multipart/form-data', detta gör att fältet för file upload inom form (HTML) måste specifieras som 'file'.
+
+###### 'HANDLERESERROR' FUNCTION 
+````js
+async function handleResError(response){
+    const json = await response.json();
+    window.location = json.errorPath;
+}
+````
+Denna funktion skapades för principen DRY. 
+Funktionen tar emot ett svar utifrån servern och får in en definierad väg (path) som används till omdirigering. 
