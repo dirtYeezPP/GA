@@ -57,7 +57,6 @@ async function updateCarImage(){
 // DELETE ROUTE SCRIPT
 async function deleteCar(id) {
     if (!id) return;
-
     const data = new URLSearchParams();
     data.append('id', id);
 
@@ -72,16 +71,13 @@ async function deleteCar(id) {
             await handleResError(response)
             return;
         }
-
-        // 1. Find the card in the HTML
+        // Find card in the HTML
         const cardToRemove = document.getElementById(`catCard-${id}`);
-
-        // 2. Make it disappear!
+        // Make it disappear
         if (cardToRemove) {
             cardToRemove.remove();
             console.log(`Cat ${id} has left the building.`);
         }
-
     } catch (error) {
         console.error("Network error:", error);
     }
@@ -142,7 +138,6 @@ async function deleteProfile(){
         }
         const jRes = await response.json();
         window.location.href = jRes.Loco;
-
     } catch (error) {
         console.error("Network error:", error);
     }

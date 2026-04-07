@@ -444,7 +444,15 @@ function redirect($path) {
 }
 ````
 Konstanten 'PATH_PREFIX' används eftersom '/GA/' alltid kommer vara i URL:en innan annat såsom '/cats' skrivs. 
-Konstanten 'BASE_URL' används för enkelhetens skull, denna definierar starten av varje route för att kunna användas i redirects.  
+Konstanten 'BASE_URL' används för enkelhetens skull, denna definierar starten av varje route för att kunna användas i redirects. 
+
+Inom 'index.php' skickas variabeln 'PATH_PREFIX' genom följande:
+````php
+$renderer->share('navItems', $navItems);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX, 'errors' => ERRORS]);
+````
+'\$renderer->share' delar med sig av de inskrivna variablerna för att möjliggöra dess användning inom pug-filerna (*se 2.1c INTAGNA VARIABLER I PHUG*). 
+
 ##### LOGINREQUIRED 
 ````php
 function loginRequired() {
@@ -492,7 +500,7 @@ Funktionen 'sendErrorPath' har skapats för att dels följa principen DRY (dont 
 Funktionen tar in '\$errorCode' och kan utifrån det definiera vad response koden är ('http_response_code) genom 'status' fältet av '\$errorCode's plats (ex 'ERR_MISSING_DATA). 
 Efter vilket den ger ut 'errorPath' som motsvarar routen för 'error-page':n. 
 
-#### 1.2a DATABAS 
+#### 1.2b DATABAS 
 Databasen byggs på SQLite och PDO (PHP data objects, en lightweight consistent interface gjord för enklare access av databaser).
 ````php
 $db = './databas/database.sqlite';
@@ -534,14 +542,136 @@ befintliga, kommer ett tillägg av fält just här resultera i ingenting.*
 
 ## 2. FRONTEND 
 ### 2.1 PHUG
-PHUG är PUG template engine:n för PHP. 
+PHUG (pug för php) är en PUG template engine skriven med och gjord för PHP. 
+
 #### 2.1a MAIN FIL - LAYOUT 
+```` pug
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        title NekoToru
+        link(rel='icon' type='image/png' href='/GA/images/favicon1.png')
+        script
+            include routeFunctions.js
+        style
+            include style.css
+    body
+        header
+            nav
+                include _navbar.pug
 
-#### 2.1b INCLUDES OCH EXTENSIONS
+        main
+            block content
 
-##### 2.1c INTAGNA VARIABLER I PHUG 
+        footer
+            block feet
+
+````
+Pug skrivs genom indentation likt python för att visa tillhörighet. 
+'Include' låter innehåll från andra filer att infogas, i detta fall ska 'style.css', 'routeFunctions.js' och '_navbar.pug' vara infogade/befintliga varje gång. 
+Inom 'main' och 'footer' elementen ingår 'block', informationen inom dessa byts ut beroende på kontext och var användaren befinner sig (ex '/contact' eller '/create').
+
+#### 2.1b UTBYTE AV INFORMATION INOM BLOCK 
+För varje route användaren befinner sig i, uppvisas olika innehåll: 
+````pug
+extends ./layout.pug
+
+block content
+    h1 HELLO AND WELCOME TO THIS CAT PAGE
+    |
+    .homeLink(style="display:flex; align-items:center;gap:4px;")
+        p here you see Lucinator, if you want to know more about the creator.. click
+        a(href=$pathPrefix."cats/contact") contact!
+    |
+    .imgBoxMain(style="width:50%;height:90%; aspect-ratio:1/1;")
+        img(src="./images/Lucinatorr.jpg", alt = "the cat is chilling" style="width:100%;height:100%;object-fit:cover;")
+
+block feet
+    h4 this is the bottom of the page of the cat page
+````
+För att innehållet i de olika blocken ska bytas ut, måste filen vara en extension till 'layout.pug'. 
+Eftersom olika routes har rendering av olika pug-filer, kommer 'layout.pug' alltid att skickas med, tillsammans med 
+filen som renderas inom routen.
+
+##### 2.1c INTAGNA VARIABLER I PHUG
+Eftersom PHP deklarerades som expression-language inom 'index.php' (*se 1.1a GET*) skrivs variabler, concatenation och annat, enligt php språket (PHUG är även designat för just PHP). 
+Inom get-routen för alla katter/posts, skickade servern med '\$cats' arrayen vid renderingen av sidan, detta möjliggör följande skrivsätt:
+````pug
+extends ./layout.pug
+
+block content
+    if count($cats) > 0
+        each $cat in $cats
+            .card(id="catCard-{$cat['id']}")
+                h4(style="font-size:1.5rem;")= $cat['name']
+                h5(style="font-size:1.2rem;") Breed: #{$cat['breed']}
+                |
+                .imgBox(style="height:20vw;width:auto;aspect-ratio:1/1;")
+                    img(src=$cat['img'] style="width:100%;height:100%;object-fit:cover;")
+                |
+                a(href=$pathPrefix."cats/{$cat['id']}") Show Post
+                |
+                if $userId === $cat['postedById']
+                    button(onclick="deleteCar({$cat['id']})", type="button") DELETE
+    else
+        p no cattos here
+
+````
+Varje variabel (såsom '\$cat') skrivs med ett '$', alltså standarden inom PHP för variabler. 
+För att '\$cat\['name]' ska visas upp på sidan får inget mellanslag finnas mellan h4 och variabeln. 
+Däremot efterson h5 taggen innehåller texten 'Breed:' används skrivsättet '\#{\$cat\['breed]}'.
+
 ###### ERROR HANDLING 
+Ännu ett exempel finns inom 'errors.pug' då varje error Kod innehåller både en status och ett meddelande som skicas med genom '\$renderer->share' (*se 1.2a FUNHELPER.PHP*).
+````pug
+extends ./layout.pug
 
-### 2.2 JAVASCRIPT 
+block content
+    p= $errorCode
+    each $error, $index in $errors
+        if($index == $errorCode)
+            p= $error['status']
+            p= $error['message']
+            a(href=$pathPrefix."cats") GO TO CATS
+````
+
+### 2.2 JAVASCRIPT
+För att möjliggöra kommunikation mellan klient-och-server vid användning av metoder som 'PATCH' och 'DELETE' användes Javascript.
 #### 2.2a DELETE
+````js
+async function deleteCar(id) {
+    if (!id) return;
+    const data = new URLSearchParams();
+    data.append('id', id);
+
+    try {
+        const response = await fetch(`/GA/cats`, {
+            method: "DELETE",
+            body: data,
+            headers: {"Content-type": "application/x-www-form-urlencoded"}
+        });
+
+        if (!response.ok) {
+            await handleResError(response)
+            return;
+        }
+        // Find card in the HTML
+        const cardToRemove = document.getElementById(`catCard-${id}`);
+        // Make it disappear
+        if (cardToRemove) {
+            cardToRemove.remove();
+            console.log(`Cat ${id} has left the building.`);
+        }
+    } catch (error) {
+        console.error("Network error:", error);
+    }
+}
+````
+Denna funktion ansvarar för radering av vald post/katt. 
+ID skickas med genom funktionen inom 'onclick' på knappen 'DELETE' (*se 2.1C INTAGNA VARIABLER I PHUG*). 
+Först verifieras att ett ID finns. 
+Efteråt skapas konstanten data, 
+
 #### 2.2b UPDATE MED PATCH OCH POST 
