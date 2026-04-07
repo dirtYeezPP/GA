@@ -46,14 +46,13 @@ get("/cats", function() use ($renderer, $pdo) {
     ]);
 });
 ````
-*För information om PDO och dess funktion, se*
+*För information om PDO och dess funktion, se 1.2b DATABAS*
 
 '\$stmt' variabeln definieras som en förfrågan (query) för inhämtning av data från SQL databasen. 
 While-loopen hämtar varje entry (varje befinnande katt) inom tabellen "cattos", tills den når slutet av tabellen för att informationen sedan
 ska lagras inom arrayen '\$cats'. <br>
-*(för information om PATH_PREFIX, se )* <br>
+*(för information om PATH_PREFIX, se 1.2a FUNHELPER.PHP)* <br>
 Listan skickas vidare till filen 'cats.pug' för rendering av vy med information. <br>
-*(För information om 'currentPage' se)* <br>
 Varje route (av annan typ än get) som kräver interaktion med klient-sidan börjar med en GET-route av vy-rendering (till exempel POST). 
 
 #### 1.1b POST
@@ -106,9 +105,9 @@ post("/cats", function () use ($pdo, $userId){
     redirect("cats");
 });
 ````
-*För information om 'loginRequired se,, användaren måste vara inloggad för tillgång till detta* <br>
-*För information om 'sendErrorPath', se, denna beter sig olika eftersom POST data i detta fall inte skickas mha js* <br>
-*För information om 'redirect' se 1.2 RELATERADE FILER*
+*För information om 'loginRequired se 1.2a FUNHELPER.PHP --> LOGINREQUIRED, användaren måste vara inloggad för tillgång till detta* <br>
+*För information om 'sendErrorPath' se 1.2a FUNHHELPER.PHP --> ERRORHANDLING, denna beter sig olika eftersom POST data i detta fall inte skickas mha js* <br>
+*För information om 'redirect' se 1.2a FUNHELPER.PHP*
 Rendering av formen genom vilken en post skapas sker genom en GET-route (dvs '/cats/create'). Om ingen bild laddas upp sker en omdirigering till '/errors' *(se )* där felet står både i URL:en och på webbsidan.
 Hanteringen av filuppladdning har två kontroller för säkerhet som definieras av '\$allowedExes' och '\$allowedMimes'.
 * '\$allowedExes' utgör en lista av tillåtna fil-extensions (exempelvis .jpg). 
@@ -137,9 +136,9 @@ delete("/cats", function () use ($pdo) {
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
 });
 ````
-Radering av posts sker genom en 'DELETE'-knapp som skickar data genom användning av javascript, en separat GET för vy-rendering behövs alltså inte *(se)*. <br>
+Radering av posts sker genom en 'DELETE'-knapp som skickar data genom användning av javascript, en separat GET för vy-rendering behövs alltså inte. <br>
 Eftersom '\$\_DELETE' inte är en inbyggd variabel (och inte är tillåten som metod i html forms), måste denna deklareras i förhand. 
-Informationen (i form av en body, skickad ifrån javascript genom en fetch, *se*), analyseras (parseas) för att konverteras till PHP variabler. 
+Informationen (i form av en body, skickad ifrån javascript genom en fetch, *se 2.2a DELETE (2.2 JAVASCRIPT)*), analyseras (parseas) för att konverteras till PHP variabler. 
 Servern tar emot ett ID som motsvarar en påklickad post (id:et syns i inspection mode (hidden form field) och även i 'request' delen inom 'Network' eftersom webbsidan körs på HTTP), som finns i 'cattos' tabellen. 
 När första matchningen av ID:et hittas, hämtas bild-kolumnen (dvs bild vägen för den specifika katten) för att hantera radering. 
 SQL-strängen innehåller clause 'id = :id' där ':id' fungerar som en platshållare och är beroende på namnet av värdet som skickas in. 
@@ -195,8 +194,7 @@ bygger i sin tur dynamiskt upp SQL strängen med clauses tagna utifrån '\$sqlPr
 Implode funktionen gör om listan till en sträng med clauses (*en clause ser ut som följande: 'age = :age'*) och tillsätter komma emellan satserna.
 Är bara ett fält angivet får satsen inget komma efter sig. 
 För säkerhet måste både postens id OCH id:et av användaren som lagt upp bilden stämma överens med användaren som begärt uppläggs ändringen.
-Sista if-satsen kontrollerar att variabeln '\$stmt' har 0 rader, vilket skulle innebära att ingen information/fält var givet och resulterar i en redirect till error page. 
-
+Sista if-satsen kontrollerar att variabeln '\$stmt' har 0 rader, vilket skulle innebära att ingen information/fält var givet och resulterar i en redirect till error page.
 
 '\$field' definierar namnet 
 '\$value' definierar dess värde (no way)
@@ -260,7 +258,7 @@ post("/cats/image", function() use($pdo, $userId){
     
 });
 ````
-(*Anledningen till att uppdateringen av en post sker via två separata routes finns i*) 
+(*Anledningen till att uppdateringen av en post sker via två separata routes finns i 2. JAVASCRIPT --> 2.2b UPDATE MED PATCH OCH POST*) <br>
 Liksom i 'create' routen kontrolleras att filen finns och att den inte är av karaktär med otillåten extension eller MIME, 
 (*se 1.1b POST*). <br> 
 Om filen blivit godkänd av alla kontroller går processen vidare till try/catch statementen.
@@ -288,7 +286,7 @@ $userId = $isLoggedIn ? $_SESSION['id'] : null;
 ````
 '\$isLoggedIn' variabeln kollar efter ett session ID med hjälp av 'isset'. 
 '\$userName' och '\$userId' definieras med hjälp av befintligt sessiond ID (genom '\$isLoggedIn' variabeln)
-för vilket en ```````` används (en kort if-sats som säger '\$userName är \$_SESSION\['name'] om \$isLoggedIn är sant, annars är värdet null). 
+för vilket en villkors sträng (ternary operator eller shorthand if...else-sats) används (en kort if-sats som säger '\$userName är \$_SESSION\['name'] om \$isLoggedIn är sant, annars är värdet null). 
 
 ###### REGISTER
 ````php
@@ -429,6 +427,10 @@ patch("/profile", function() use($pdo){
     ]);
 });
 ````
+Denna patch route för profil informations ändring använder sig utav lösenordet för att verifiera användaren och tillåta ändring av information såsom username eller email. 
+Inom inspection mode i sektionen 'Network' och vidare till 'request' kan man finna lösenordet eftersom HTTPS inte används för denna applikation, däremot 
+körs detta lokalt. 
+Principen utöver verifiering med lösenord är mestadels densamma som i PATCH routen av katt-posten (*se 1.1d PATCH / UPDATE ROUTE*). <br>
 
 ### 1.2 RELATERADE FILER
 #### 1.2a FUNHELPER.PHP
@@ -561,13 +563,11 @@ html(lang="en")
         header
             nav
                 include _navbar.pug
-
         main
             block content
 
         footer
             block feet
-
 ````
 Pug skrivs genom indentation likt python för att visa tillhörighet. 
 'Include' låter innehåll från andra filer att infogas, i detta fall ska 'style.css', 'routeFunctions.js' och '_navbar.pug' vara infogade/befintliga varje gång. 
@@ -587,7 +587,7 @@ block content
     |
     .imgBoxMain(style="width:50%;height:90%; aspect-ratio:1/1;")
         img(src="./images/Lucinatorr.jpg", alt = "the cat is chilling" style="width:100%;height:100%;object-fit:cover;")
-
+        
 block feet
     h4 this is the bottom of the page of the cat page
 ````
@@ -617,7 +617,6 @@ block content
                     button(onclick="deleteCar({$cat['id']})", type="button") DELETE
     else
         p no cattos here
-
 ````
 Varje variabel (såsom '\$cat') skrivs med ett '$', alltså standarden inom PHP för variabler. 
 För att '\$cat\['name]' ska visas upp på sidan får inget mellanslag finnas mellan h4 och variabeln. 
