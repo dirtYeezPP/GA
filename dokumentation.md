@@ -23,7 +23,7 @@ $renderer = new \Phug\Renderer([
     'expressionLanguage' => 'php'
 ]);
 ````
-*(för använding av php-variabler inom pug, se 2.1c INTAGNA VARIABLER I PHUG)*
+*(för använding av php-variabler inom pug, se 3.1c INTAGNA VARIABLER I PHUG)*
 
 ###### READ - ROUTE FÖR ALLA POSTS
 ````php
@@ -52,7 +52,7 @@ get("/cats", function() use ($renderer, $pdo) {
 PDO möjliggör en förenklad och säker kommunikation mellan serversidan och databasen. Genom dess användning skickas en förfrågan (query) för inhämtning av data från tabellen 'cattos' inom SQL databasen.
 Datan går sedan igenom en while-loop där informationen placeras/lagras inom en associativ lista ('$cats') tills tabellen når sitt slut.
 (*Information om PATH_PREFIX hittar du i 1.2a FUNHELPER.PHP*) <br>
-Genom '\$renderer' renderas vyn inom 'cats.pug' och listan '\$cats' skickas med för uppvisning av information (*Se 2.1c INTAGNA VARIABLER I PHUG*). <br>
+Genom '\$renderer' renderas vyn inom 'cats.pug' och listan '\$cats' skickas med för uppvisning av information (*Se 3.1c INTAGNA VARIABLER I PHUG*). <br>
 
 * Varje route (av annan typ än get) som kräver interaktion med användaren/klientsidan genomgår först en vy-rendering av en phug fil, såsom POST (eftersom den innehåller ett formulär).
 
@@ -511,26 +511,10 @@ Ett hashed lösenord behöver mer än 60 bytes och maximala längden sätts där
 *Ändringar i tabellerna sker via konsollen 'database.sql' eftersom tabellerna skapas bara en gång och redan är
 befintliga, kommer ett tillägg av fält just här resultera i ingenting.*
 
-
-
-Inom 'index.php' skickas variabeln 'PATH_PREFIX' genom följande:
-````php
-$renderer->share('navItems', $navItems);
-$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX, 'errors' => ERRORS]);
-````
-'\$renderer->share' delar med sig av de inskrivna variablerna för att möjliggöra dess användning inom pug-filerna (*se 2.1c INTAGNA VARIABLER I PHUG*). 
-
-
-
-
-
-
-
 ## 3. FRONTEND 
 ### 3.1 PHUG
-PHUG (pug för php) är en PUG template engine skriven med och gjord för PHP. 
-
-#### 3.1a MAIN FIL - LAYOUT 
+PHUG (pug för php) är en PUG template engine skriven med och gjord för PHP.
+#### 3.1a LAYOUT
 ```` pug
 doctype html
 html(lang="en")
@@ -553,12 +537,11 @@ html(lang="en")
         footer
             block feet
 ````
-Pug skrivs genom indentation likt python för att visa tillhörighet. 
-'Include' låter innehåll från andra filer att infogas, i detta fall ska 'style.css', 'routeFunctions.js' och '_navbar.pug' vara infogade/befintliga varje gång. 
-Inom 'main' och 'footer' elementen ingår 'block', informationen inom dessa byts ut beroende på kontext och var användaren befinner sig (ex '/contact' eller '/create').
+'Include' infogar innehåll från andra filer. 
+Inom 'main' och 'footer' elementen ingår blocks/templates vars information byts ut i efterhand med hjälp av extensions.
 
-#### 3.1b UTBYTE AV INFORMATION INOM BLOCK 
-För varje route användaren befinner sig i, uppvisas olika innehåll: 
+När en vy renderas genom servern skickas 'layout.pug' alltid med eftersom de andra filerna beror på denna (de är extensions).
+#### 3.1b TEMPLATES
 ````pug
 extends ./layout.pug
 
@@ -575,13 +558,19 @@ block content
 block feet
     h4 this is the bottom of the page of the cat page
 ````
-För att innehållet i de olika blocken ska bytas ut, måste filen vara en extension till 'layout.pug'. 
-Eftersom olika routes har rendering av olika pug-filer, kommer 'layout.pug' alltid att skickas med, tillsammans med 
-filen som renderas inom routen.
+Eftersom filen är en extension behöver den inte ha med 'doctype html', dess funktion är att byta ut information i blocken. 
 
 ##### 3.1c INTAGNA VARIABLER I PHUG
-Eftersom PHP deklarerades som expression-language inom 'index.php' (*se 1.1a GET*) skrivs variabler, concatenation och annat, enligt php språket (PHUG är även designat för just PHP). 
-Inom get-routen för alla katter/posts, skickade servern med '\$cats' arrayen vid renderingen av sidan, detta möjliggör följande skrivsätt:
+Inom pug-filerna används variabler från serversidan, detta möjliggörs av följande kod:
+````php
+global $renderer;
+$renderer->share('navItems', $navItems);
+$renderer->share(['isLoggedIn' => $isLoggedIn, 'userName' => $userName, 'userId' => $userId, 'pathPrefix' => PATH_PREFIX, 'errors' => ERRORS]);
+````
+Genom 'share' delas variabler från serversidan med klientsidan och därmed användas inom vyerna. 
+Variablerna kan även skickas in med rendering av vy som sett i *1.1a GET*. 
+
+###### ALL CATS VIEW
 ````pug
 extends ./layout.pug
 
@@ -602,12 +591,13 @@ block content
     else
         p no cattos here
 ````
-Varje variabel (såsom '\$cat') skrivs med ett '$', alltså standarden inom PHP för variabler. 
-För att '\$cat\['name]' ska visas upp på sidan får inget mellanslag finnas mellan h4 och variabeln. 
-Däremot efterson h5 taggen innehåller texten 'Breed:' används skrivsättet '\#{\$cat\['breed]}'.
+Enligt PHP syntaxen skrivs varje variabel med '\$' och concatenation sker via punkter. 
+Inget mellanslag är angivet då h4 får sitt 'innehåll' eftersom likhetstecknet måste vara fast på taggen för att variabeln ska hämtas.
+(Annars kommer '\$cat\['name']) skrivas ut som plaintext..) <br> 
+Hashtag tecknet är Pugs syntax för 'string interpolation' som tillåter införandet av variabler från serversidan.
 
-###### ERROR HANDLING 
-Ännu ett exempel finns inom 'errors.pug' då varje error Kod innehåller både en status och ett meddelande som skicas med genom '\$renderer->share' (*se 1.2a FUNHELPER.PHP*).
+##### 3.1d ERROR PAGE
+Ännu ett exempel finns inom 'errors.pug' då varje error Kod innehåller både en status och ett meddelande som skickas med genom '\$renderer->share' (*se 2.1 FUNHELPER.PHP*).
 ````pug
 extends ./layout.pug
 
@@ -619,10 +609,12 @@ block content
             p= $error['message']
             a(href=$pathPrefix."cats") GO TO CATS
 ````
+Om '\$index' matchar '\$errorCode' (dvs strängen som definierar felet), tar PHUG in dess status och meddelande från listan. 
+Därefter finns en länk som navigerar tillbaka till 'cats' page. 
 
 ### 3.2 JAVASCRIPT
 För att möjliggöra kommunikation mellan klient-och-server vid användning av metoder som 'PATCH' och 'DELETE' användes Javascript.
-#### 2.2a DELETE
+#### 3.2a DELETE
 ````js
 async function deleteCar(id) {
     if (!id) return;
@@ -653,15 +645,13 @@ async function deleteCar(id) {
 }
 ````
 Denna funktion ansvarar för radering av vald post/katt. 
-ID skickas med genom funktionen inom 'onclick' på knappen 'DELETE' (*se 2.1C INTAGNA VARIABLER I PHUG*). 
+ID skickas med genom funktionen inom 'onclick' på knappen 'DELETE'. 
 Först verifieras att ett ID finns, efter vilket konstanten 'data' definieras av formateringen av ID:et (utifrån URLSearchParams, skickas ej som JSON). 
 Sedan används fetch API:n för att skicka DELETE metoden och tala med servern, await innebär att koden väntar tills ett svar är angivet. 
-Om allt är godkänt och 'response.ok' är 'true' letas kattens id upp för att raderas från sidan.
+Om allt är godkänt och 'response.ok' är 'true' letas kattens card upp för att tas bort från browserns vy. 
 
 #### 3.2b UPDATE MED PATCH OCH POST 
-Fetch för uppdateringen av posts bygger på samma principer som ovanstående sektionens kod, där skillnaden är att 
-konstanten data får tillägg av information genom 'append' och skickar sedan vidare allt i form av en body till servern.
-Vad gäller bildhantering ligger skillnaden i utbytet av URLSearchParams mot FormData. 
+Fetch av text baserad informaton skickar också med 'URLSearchParams', däremot hanteras bildens ändring på olikt sätt. 
 ````js
 async function updateCarImage(){
     const id = document.querySelector("#id").value;
@@ -689,7 +679,7 @@ Uppdateringen eller sändning av text-data (såsom name, breed) sker via URLSear
 URLSearchParams formaterar data som kontinuerliga text-strängar, dvs 'application/x-www-form-urlencoded'. 
 FormData däremot, är gjort för hantering av 'multipart/form-data', detta gör att fältet för file upload inom form (HTML) måste specifieras som 'file'.
 
-###### 'HANDLERESERROR' FUNCTION 
+###### FUNKTIONEN handleResError
 ````js
 async function handleResError(response){
     const json = await response.json();
