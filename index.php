@@ -290,7 +290,7 @@ get('/cats/$id', function($id) use ($renderer, $pdo, $userId){
 
 // DELETE THING
 delete("/cats", function () use ($pdo) {
-    //loginRequired();
+    loginRequired();
     parse_str(file_get_contents("php://input"), $_DELETE);
     $catId = $_DELETE['id'];
 

@@ -6,7 +6,7 @@ Dokumentationen beskriver verktyg och funktioner använda i projektet "NekoToru"
 
 ## 1. BACKEND
 ### 1.1 ROUTES
-Skapande av routes möjliggörs av phprouter. (?)
+Skapande av routes möjliggörs av phprouter. 
 #### 1.1a GET 
 En typisk GET route i 'index.php' ser ut som följande; 
 ````php
@@ -14,7 +14,8 @@ get("/auth/register", function () use ($renderer) {
     echo $renderer->renderFile('/register.pug');
 });
 ````
-'\$renderer' definieras utifrån composer (vendor mappen, som även innehåller PHUG). Variabeln använder sig av filerna i mappen 'views' och definierar php som språk för variabel- och funktion hantering inom pug-filerna, enligt nedanstående kod: 
+'\$renderer' definieras utifrån PHUG/composer (vendor mappen, som även innehåller PHUG). Vägar (paths) befinner sig inom mappen 'views' och definieras för enklare skrivning i senare syften. 
+PHP anges som 'expression language' vilket innebär att dess syntax används inom PHUG-filerna för intag av variabler m.m.
 ````php
 require __DIR__ . "/vendor/autoload.php";
 $renderer = new \Phug\Renderer([
@@ -24,7 +25,7 @@ $renderer = new \Phug\Renderer([
 ````
 *(för använding av php-variabler inom pug, se 2.1c INTAGNA VARIABLER I PHUG)*
 
-###### ROUTE FÖR UPPVISNING AV ALLA POSTS  
+###### READ - ROUTE FÖR ALLA POSTS  
 ````php
 get("/cats", function() use ($renderer, $pdo) {
 
@@ -48,15 +49,14 @@ get("/cats", function() use ($renderer, $pdo) {
 ````
 *För information om PDO och dess funktion, se 1.2b DATABAS*
 
-'\$stmt' variabeln definieras som en förfrågan (query) för inhämtning av data från SQL databasen. 
-While-loopen hämtar varje entry (varje befinnande katt) inom tabellen "cattos", tills den når slutet av tabellen för att informationen sedan
-ska lagras inom arrayen '\$cats'. <br>
-*(för information om PATH_PREFIX, se 1.2a FUNHELPER.PHP)* <br>
-Listan skickas vidare till filen 'cats.pug' för rendering av vy med information. <br>
-Varje route (av annan typ än get) som kräver interaktion med klient-sidan börjar med en GET-route av vy-rendering (till exempel POST). 
+PDO möjliggör en förenklad och säker kommunikation mellan serversidan och databasen. Genom dess användning skickas en förfrågan (query) för inhämtning av data från tabellen 'cattos' inom SQL databasen. 
+Datan går sedan igenom en while-loop där informationen placeras/lagras inom en associativ lista ('$cats') tills tabellen når sitt slut.
+(*Information om PATH_PREFIX hittar du i 1.2a FUNHELPER.PHP*) <br> 
+Genom '\$renderer' renderas vyn inom 'cats.pug' och listan '\$cats' skickas med för uppvisning av information (*Se 2.1c INTAGNA VARIABLER I PHUG*). <br>
+
+* Varje route (av annan typ än get) som kräver interaktion med användaren/klientsidan genomgår först en vy-rendering av en phug fil, såsom POST (eftersom den innehåller ett formulär).
 
 #### 1.1b POST
-
 ````php
 get("/cats/create", function () use ($renderer){
     loginRequired();
@@ -105,24 +105,29 @@ post("/cats", function () use ($pdo, $userId){
     redirect("cats");
 });
 ````
-*För information om 'loginRequired se 1.2a FUNHELPER.PHP --> LOGINREQUIRED, användaren måste vara inloggad för tillgång till detta* <br>
-*För information om 'sendErrorPath' se 1.2a FUNHHELPER.PHP --> ERRORHANDLING, denna beter sig olika eftersom POST data i detta fall inte skickas mha js* <br>
-*För information om 'redirect' se 1.2a FUNHELPER.PHP*
-Rendering av formen genom vilken en post skapas sker genom en GET-route (dvs '/cats/create'). Om ingen bild laddas upp sker en omdirigering till '/errors' *(se )* där felet står både i URL:en och på webbsidan.
-Hanteringen av filuppladdning har två kontroller för säkerhet som definieras av '\$allowedExes' och '\$allowedMimes'.
-* '\$allowedExes' utgör en lista av tillåtna fil-extensions (exempelvis .jpg). 
-* '\$allowedMimes' utgör en lista av tillåtna MIMES (MultiPurpose Internet Mail Extensions), vilket kollar file content. 
+*Information om LoginRequired finns i 1.2a FUNHELPER.PHP --> användaren måste vara inloggad för tillgång till detta* <br>
+*För information om 'sendErrorPath' och 'redirect' se 1.2a FUNHELPER.PHP sektionen.* <br> 
 
-Den uppladdade filens mime och extension kontrolleras innan vidare hantering. Efter godkännande anges ett unikt namn, genom bl.a. funktionen 'uniqid'. 
-När filer laddas upp är de temporärt gömt lagrad och behöver flyttas till 'posts' mappen, i detta fall, för att sparas. Sista if-satsen kontrollerar 
-om omflyttningen av filen misslyckats och resulterar då i en omdirigering till error page. 
- 
-'\$requested' variabeln tar in POST informationen inskriven och skickad av ett POST formulär på klient-sidan, efter vilket informationen lagras i 'cattos' databasen. <br>
-*'\$\_POST är en superglobal (inbyggd variabel) som innehåller listor av variables intagna från HTTP POST metoden*
+Allra först renderas en vy av 'create.pug' för routen 'cats/create'. 
+Först kontrolleras att en användare än inloggad och att en fil faktiskt har lagts upp/bifogats. 
+Sedan definieras tillåtna filändelser (extensions) samt en lista med tillåtna MIME-typer (MultiPurpose Internet Mail Extensions --> *type/subtype*). 
+* Extensions utgör ändelsen på filnamnet, såsom '.jpeg'
+* MIME-typen utgör filens 'identitet' och talar om det exakta formatet filen består av. 
+
+Efter godkännande av både filtyp och MIME-typ anges ett unikt namn, genom bl.a. funktionen 'uniqid'. 
+Vid uppladdning blir filer temporärt gömt lagrade, från vilket de behöver flyttas och sparas lokalt. Sista if-satsen kollar därför att omflyttningen till 'posts' mappen inte misslyckats.  
+Därefter lagras den uppladdade informationen (hämtad med POST superglobalen) inom variabeln '\$requested'. 
+Genom PDO talar servern om för databasen att lägga till '\$requested' inom tabellen 'cattos', det blir som en förfrågan eller ett kommando inom SQL konsollen. 
+Först förbereds databasen att ta emot förfrågan genom 'prepare' (här är värdena inte angivna, bara strukturen och tillåtna handlingar för förfrågan är angiven), efter vilket värdena är skickade genom 'execute'.
+
+*'\$\_POST är en superglobal (inbyggd variabel) som innehåller listor av variables intagna från HTTP POST metoden* <br> 
+*en clause (sats) ser ut på följande sätt: 'name = :name' eller 'name = ?', i varje fall tjänar innehållet efter likhetstecknet funktionen av en platshållare. Vid fall 1 ('name = :name) förlitar 
+sig satsen på inskickade värdets namn. Vid fall 2 ('name = ?') förlitar sig satsen på inkommande datans ordning.*
 
 #### 1.1c DELETE 
 ````php
 delete("/cats", function () use ($pdo) {
+    loginRequired();
     parse_str(file_get_contents("php://input"), $_DELETE);
     $catId = $_DELETE['id'];
 
@@ -136,19 +141,20 @@ delete("/cats", function () use ($pdo) {
     //HA INTE REDIRECT FÖR DU FÅR VÄRSTA LOOPEN BRUV
 });
 ````
-Radering av posts sker genom en 'DELETE'-knapp som skickar data genom användning av javascript, en separat GET för vy-rendering behövs alltså inte. <br>
-Eftersom '\$\_DELETE' inte är en inbyggd variabel (och inte är tillåten som metod i html forms), måste denna deklareras i förhand. 
-Informationen (i form av en body, skickad ifrån javascript genom en fetch, *se 2.2a DELETE (2.2 JAVASCRIPT)*), analyseras (parseas) för att konverteras till PHP variabler. 
-Servern tar emot ett ID som motsvarar en påklickad post (id:et syns i inspection mode (hidden form field) och även i 'request' delen inom 'Network' eftersom webbsidan körs på HTTP), som finns i 'cattos' tabellen. 
-När första matchningen av ID:et hittas, hämtas bild-kolumnen (dvs bild vägen för den specifika katten) för att hantera radering. 
-SQL-strängen innehåller clause 'id = :id' där ':id' fungerar som en platshållare och är beroende på namnet av värdet som skickas in. 
-Raden för bilder inom tabellen lagrar en väg (path) till uppladdad bild (dvs exempelvis '/posts/*bildnamn*'), eftersom bilder lagras i mappen 'posts'. 
-Unlink används därför för borttagning av bilden från 'posts' för att minska onödig platsupptagning.
+*Radering sker via en delete-knapp på klient-sidan* <br> 
+'\$\_DELETE' är, till skillnad från GET och POST, inte en inbyggd variabel i PHP, därför måste den deklareras i förhand för att kunna hantera information likt inbyggda PHP variabler. 
+* 'file_get_contents' tar emot och läser av inkommande data från klientens request. 
+* 'parse_str' funktionen analyserar datan och lagrar resultatet i listan som, i detta fall, kallas '\$\_DELETE'.
+
+Klientens förfrågan skickar med ett id som motsvarar en plats i databasens tabell 'cattos'.
+Varje katt innehåller ett id, namn, en ras, en bild, och ett ägar-id. Bilden lagras inom en separat mapp och tabellen lagrar vägen till bilden. 
+Genom PDO hämtas 'img' delen från databasen på angiven plats (id) efter vilket 'unlink' funktionen används för att radera filen från mappen 'posts'. 
+Därefter förbereds SQL för att ta emot datan och efter 'execute' raderas katten från tabellen.
 
 #### 1.1d PATCH / UPDATE ROUTE 
 Uppdatering av posts sker separat gällande text (PATCH) och bildhantering (POST). 
 ###### PATCH 
-För att ändra namn eller ras (befinnande text-information) på katten/posten används metoden PATCH.
+För att ändra kattens namn eller ras (befinnande text-information) används metoden PATCH.
 ````php
 patch("/cats", function () use($pdo, $userId) {
     loginRequired();
@@ -186,6 +192,23 @@ patch("/cats", function () use($pdo, $userId) {
     echo "sauces";
 });
 ````
+*Likt DELETE är PATCH (och PUT) inte inbyggda PHP-variabler och kan inte hantera information likt GET och POST superglobalerna.* <br> 
+Inskickad data läses in och översätts för att placeras i listan '\$\_PATCH'. 
+Servern tar sedan emot information (inskrivet i ett formulär) och lagrar den i listan '\$request'. Därefter filtreras tomma fält bort och ifyllda placeras i listan '\$sqlPramValues'. 
+Om listan inte är tom och ett id är givet påbörjar strängen till SQL-förfrågan och en lista för hantering av satser skapas. 
+Varje index (utom 'id' fältet) läggs i '\$setClauses' omskrivna som clauses (satser). Inom en SQL sträng måste satserna separeras med komma, därför används 'implode' funktionen. Är bara en sats 
+given kommer inget komma att tillsättas. 
+
+
+Servern tar emot inskriven information i formuläret för uppdatering av information.
+För att tillåta användare att lämna fält tomma filtreras tomma fält bort och hamnar i '\$sqlPramValues' listan. 
+Om listan innehåller minst ett fält och 'id' är befintligt, påbörjas strängen för SQL-förfrågan och en lista till uppkommande clauses (satser) skapas.
+
+
+
+För varje index inom '\$sqlPramValues' (ex 'name => "Gary"')   
+
+
 Likt DELETE behöver PATCH först definieras för att möjliggöra servern intag av inskickad data ifrån klient-sidan.
 '\$request' listan innehåller den parseade datan från \$_PATCH förfrågan av klient-sidan (dvs body från javascript).
 För att tillåta användaren att lämna form-fält tomma lagrar '\$sqlPramValues' endast ifylld data från '\$request'.
