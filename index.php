@@ -8,6 +8,8 @@ global $pdo;
 
 session_start();
 
+//TODO DEFINE THEM COOKIES MAN :(
+
 // MAKE IT COOL LATER
 //TODO fix design and such in css.
 //TODO fix media query for bigger screens, work in mobile first from now on.
