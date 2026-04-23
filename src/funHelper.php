@@ -13,6 +13,14 @@ function loginRequired() {
         redirect("auth/login");
     }
 }
+
+//optional, could put !loginRequired, not sure tho, have to test it 
+function loginNotRequired() {
+    if(isset($_SESSION["id"])){
+        redirect("cats");
+    }
+}
+
 const ERRORS = [
     'ERR_MISSING_DATA' => ['status'=>400, 'message'=>'ERR: The data is meowssing.'],
     'ERR_INVALID_DATA' => ['status'=>400, 'message'=>'ERR: The data is invalid.'],
