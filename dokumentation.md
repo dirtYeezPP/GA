@@ -281,9 +281,11 @@ Om ett oväntat fel uppstår kommer användaren omdirigeras till error-page med 
 ###### SESSIONS
 Sessions sätts igång på servern innan någon hinner blinka:
 ````php
-session_start();
+session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 ````
 *(detta skrivs på toppen av kodfilen, i detta fall efter de flesta 'require' raderna)* <br>
+* Httponly ansvarar för att script som körs på klientsidan inte kan komma åt cookien via session.cookie (i think). 
+* Samesite -> Lax innebär att cookies kan skickas med vid navigering till webbsidan från externa platser, och förbjuder att cookies skickas med vid metoder som POST från externa platser.
 
 ````php
 $isLoggedIn = isset($_SESSION['id']);
@@ -398,6 +400,30 @@ att en uppdatering av session information sker.
     }
 `````
 (*utdraget visar inte all kod inom patch routen för profil*) <br>
+<hr> 
+inom Delete routen för profilradering sker även radering av alla posts aknutna till profilen. 
+
+`````php
+    $uId = $_SESSION['id'];
+    $stmt = $pdo->query("SELECT img FROM cattos WHERE postedById = ?");
+    $stmt->execute([$uId]);
+    $Img = $stmt->fetchColumn();
+
+    unlink(__DIR__."/".$Img);
+    $pdo->prepare("DELETE FROM cattos WHERE postedById=?")->execute([$uId]);
+
+    $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$uId]);
+
+    $_SESSION = [];
+    session_destroy();
+
+`````
+(*ett udrag från profilraderingsrouten*) <br> 
+Eftersom tabellen 'cattos' innehåller värdet av userId inom 'postedById' kan bilderna som är kopplade till profilen enkelt letas upp genom pdo. 
+Eftersom '?' förlitar sig på ordningen skickas endast variabeln med inom 'execute'. 
+Därefter hämtas pathen till bilden och raderas därefter enligt samma princip som i delete routen för kattposts. 
+Sedan raderas hela kattens entry från tabellen 'cattos' samt användarens information tas bort inom 'users' samtidigt som variabeln '\$\_SESSION' anges en tom lista och användarens session avslutas. '
+
 
 ## 2 RELATERADE FILER & FUNKTIONER
 ### 2.1 FUNHELPER.PHP
