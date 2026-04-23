@@ -6,7 +6,7 @@ require_once 'src/connect.php';
 require_once 'src/funHelper.php';
 global $pdo;
 
-session_start();
+session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 //TODO DEFINE THEM COOKIES MAN :(
 
@@ -104,6 +104,8 @@ post("/auth/login", function() use ($pdo) {
 
 //LOGOUT
 get("/auth/logout", function () use ($renderer) {
+    //(!loginRequired()); 
+    // eller loginNotRequired, om jag lägger till denna funktionen, vet inte hur det funkar med övre eller OM det funkar 
     loginRequired();
     $_SESSION = [];
 
@@ -137,7 +139,14 @@ delete("/deleteProfile", function () use ($renderer, $pdo) {
     parse_str(file_get_contents("php://input"), $_DELETE);
     $uId = $_SESSION['id'];
 
-    $pdo->prepare("DELETE FROM users WHERE id = :id")->execute(['id' => $uId]);
+    $stmt = $pdo->query("SELECT img FROM cattos WHERE postedById = ?");
+    $stmt->execute([$uId]);
+    $Img = $stmt->fetchColumn();
+
+    unlink(__DIR__."/".$Img);
+    $pdo->prepare("DELETE FROM cattos WHERE postedById=?")->execute([$uId]);
+
+    $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$uId]);
 
     $_SESSION = [];
     session_destroy();
